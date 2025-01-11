@@ -1,13 +1,14 @@
 import pygame
 import random
 from math import sin, cos, radians
-from ThimeusConstants import (SWORD_SLASH, SWORD_SLASH_IMAGES, FLAME_PROJECTILE, FLAME_IMAGES,
-                              AXE_HIT, AXE_HIT_IMAGES, THUNDER, THUNDER_IMAGES, HOOK_WAVE,
-                              HOOK_WAVE_IMAGES, BULLET, BULLET_IMAGES)
+from ThimeusConstants import (SWORD, FLAMETHROWER, AXE, STAFF, HOOK, GUN,
+                              SWORD_PROJECTILE_IMAGES, FLAMETHROWER_PROJECTILE_IMAGES,
+                              AXE_PROJECTILE_IMAGES, STAFF_PROJECTILE_IMAGES,
+                              HOOK_PROJECTILE_IMAGES, GUN_PROJECTILE_IMAGES)
 
 
 class Projectile(pygame.sprite.Sprite):
-    def __init__(self, group, x, y, speed, angle, kind, flip=False):
+    def __init__(self, group, x, y, speed, angle, kind, walls, flip=False):
         super().__init__(group)
         self.kind = kind
         self.angle = angle
@@ -16,51 +17,58 @@ class Projectile(pygame.sprite.Sprite):
         self.current_frame = 0
         self.frames = list()
         self.frame_amount = 0
+        self.walls = walls
+        self.screen_rect = pygame.Rect(0, 0, *pygame.display.get_window_size())
 
-        if self.kind == FLAME_PROJECTILE:
-            size = FLAME_IMAGES[0].get_size()[0] + random.randrange(0, 20, 5)
-            self.frames = [pygame.transform.rotate(pygame.transform.scale(image, (size, size)),
-                                                   -self.angle) for image in FLAME_IMAGES]
-            self.frame_amount = 60
-            self.lifetime = -1
-            self.destroyed_by_walls = True
-
-        elif self.kind == SWORD_SLASH:
+        if self.kind == SWORD:
             for frame in [pygame.transform.rotate(pygame.transform.flip(image, False, flip),
-                                                  -self.angle) for image in SWORD_SLASH_IMAGES]:
+                                                  -self.angle)
+                          for image in SWORD_PROJECTILE_IMAGES]:
                 self.frames += [frame] * 8
             self.frame_amount = 40
             self.lifetime = 40
             self.destroyed_by_walls = False
 
-        elif self.kind == AXE_HIT:
+        elif self.kind == FLAMETHROWER:
+            size = FLAMETHROWER_PROJECTILE_IMAGES[0].get_size()[0] + random.randrange(0, 20, 5)
+            self.frames = [pygame.transform.rotate(pygame.transform.scale(image, (size, size)),
+                                                   -self.angle)
+                           for image in FLAMETHROWER_PROJECTILE_IMAGES]
+            self.frame_amount = 60
+            self.lifetime = -1
+            self.destroyed_by_walls = True
+
+        elif self.kind == AXE:
             for frame in [pygame.transform.rotate(pygame.transform.flip(image, False, flip),
-                                                  -self.angle) for image in AXE_HIT_IMAGES]:
+                                                  -self.angle)
+                          for image in AXE_PROJECTILE_IMAGES]:
                 self.frames += [frame] * 6
             self.frame_amount = 66
             self.lifetime = 66
             self.destroyed_by_walls = False
 
-        elif self.kind == THUNDER:
-            size = THUNDER_IMAGES[0].get_size()[0] + random.randrange(0, 20, 5)
+        elif self.kind == STAFF:
+            size = STAFF_PROJECTILE_IMAGES[0].get_size()[0] + random.randrange(0, 20, 5)
             for frame in [pygame.transform.rotate(pygame.transform.scale(image, (size, size)),
-                                                  -self.angle) for image in THUNDER_IMAGES]:
+                                                  -self.angle)
+                          for image in STAFF_PROJECTILE_IMAGES]:
                 self.frames += [frame] * 5
             self.frame_amount = 25
             self.lifetime = -1
             self.destroyed_by_walls = True
 
-        elif self.kind == HOOK_WAVE:
+        elif self.kind == HOOK:
             for frame in [pygame.transform.rotate(pygame.transform.flip(image, False, flip),
-                                                  -self.angle) for image in HOOK_WAVE_IMAGES]:
+                                                  -self.angle)
+                          for image in HOOK_PROJECTILE_IMAGES]:
                 self.frames += [frame] * 4
-            self.frame_amount = 17 * 4
-            self.lifetime = 17 * 4
+            self.frame_amount = 68
+            self.lifetime = 68
             self.destroyed_by_walls = False
 
-        elif self.kind == BULLET:
-            for frame in [pygame.transform.rotate(image,
-                                                  -self.angle) for image in BULLET_IMAGES]:
+        elif self.kind == GUN:
+            for frame in [pygame.transform.rotate(image, -self.angle)
+                          for image in GUN_PROJECTILE_IMAGES]:
                 self.frames += [frame] * 5
             self.frame_amount = 50
             self.lifetime = -1
@@ -78,7 +86,7 @@ class Projectile(pygame.sprite.Sprite):
         self.rect = self.rect.move(self.speed_x, self.speed_y)
         if self.lifetime != -1:
             self.lifetime -= 1
-        if ((any([pygame.sprite.collide_mask(self, wall) for wall in walls]) and
+        if ((any([pygame.sprite.collide_mask(self, wall) for wall in self.walls]) and
              self.destroyed_by_walls) or
-                not self.rect.colliderect(screen.get_rect()) or self.lifetime == 0):
+                not self.rect.colliderect(self.screen_rect) or self.lifetime == 0):
             self.kill()
