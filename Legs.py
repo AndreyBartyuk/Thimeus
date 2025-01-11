@@ -12,7 +12,7 @@ class Legs(pygame.sprite.Sprite):
         self.rect = pygame.Rect(0, 0, w, h)
         self.color = pygame.Color(color)
         self.angle = 0
-        self.l_w = self.w // 4
+        self.leg_width = self.w // 4
         self.speed = 0
 
     def update(self):
@@ -28,11 +28,11 @@ class Legs(pygame.sprite.Sprite):
         self.draw_leg(self.angle + 180)
 
     def draw_leg(self, angle):
-        up_points = [(self.w // 2 + self.w // 6 * cos(radians(angle) + 2 * pi) - self.l_w // 2,
+        up_points = [(self.w // 2 + self.w // 6 * cos(radians(angle) + 2 * pi) - self.leg_width // 2,
                       self.h // 8 + self.h // 12 * sin(radians(angle) + 2 * pi))]
         up_points += [(up_points[0][0] + self.w // 4, up_points[0][1])]
 
-        down_points = [(self.w // 2 + self.w // 2.8 * cos(radians(angle) + 2 * pi) - self.l_w // 2,
+        down_points = [(self.w // 2 + self.w // 2.8 * cos(radians(angle) + 2 * pi) - self.leg_width // 2,
                         self.h // 8 * 7 + self.h // 8 * sin(radians(angle) + 2 * pi))]
         down_points = [(down_points[0][0] + self.w // 4, down_points[0][1])] + down_points
 

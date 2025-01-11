@@ -1,34 +1,39 @@
-import pygame
 from screeninfo import get_monitors
-from Groups import walls, projectiles, ladders, decor
+import pygame
 
 
 pygame.init()
 monitor = get_monitors()[0]
 SCREEN_SIZE = SCREEN_WIDTH, SCREEN_HEIGHT = monitor.width, monitor.height
 screen = pygame.display.set_mode(SCREEN_SIZE)
+pygame.display.toggle_fullscreen()
 
 
 from PlatonicSolid import PlatonicSolid
 from LoadLevelFunction import load_level
-from ThimeusConstants import DARK_COLOR
+from ThimeusConstants import DARK_COLOR, FPS
 from Camera import Camera
 
 
-pygame.display.toggle_fullscreen()
-clock = pygame.time.Clock()
-FPS = 100
-pygame.display.flip()
-running = True
-all_sprites = [walls, projectiles, ladders, decor]
-load_level("level_1.txt")
+walls = pygame.sprite.Group()
+projectiles = pygame.sprite.Group()
+ladders = pygame.sprite.Group()
+decor = pygame.sprite.Group()
 
-PlatonicSolid(300, 200, 100, 4)
-PlatonicSolid(450, 200, 100, 6)
-PlatonicSolid(600, 200, 100, 8)
-PlatonicSolid(750, 200, 100, 20)
-PlatonicSolid(900, 200, 100, 12)
-camera = Camera()
+all_sprites = [walls, ladders, projectiles, decor]
+camera = Camera(all_sprites)
+load_level("level_1.txt", all_sprites, walls, ladders, projectiles, camera)
+
+PlatonicSolid(decor, 300, 200, 100, 4)
+PlatonicSolid(decor, 450, 200, 100, 6)
+PlatonicSolid(decor, 600, 200, 100, 8)
+PlatonicSolid(decor, 750, 200, 100, 20)
+PlatonicSolid(decor, 900, 200, 100, 12)
+
+camera.set_target()
+clock = pygame.time.Clock()
+running = True
+
 while running:
     for event in pygame.event.get():
         match event.type:
