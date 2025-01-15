@@ -1,4 +1,4 @@
-from Human import Human
+from Player import Player
 import pygame
 
 
@@ -10,7 +10,7 @@ class Camera:
 
     def set_target(self):
         for group in self.all_sprites:
-            if isinstance(group, Human):
+            if isinstance(group, Player):
                 self.target = group
         target_x = self.target.hit_box.rect.x + self.target.hit_box.rect.w // 2
         target_y = self.target.hit_box.rect.y + self.target.hit_box.rect.h // 2

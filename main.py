@@ -22,7 +22,7 @@ decor = pygame.sprite.Group()
 
 all_sprites = [walls, ladders, projectiles, decor]
 camera = Camera(all_sprites)
-load_level("level_1.txt", all_sprites, walls, ladders, projectiles, camera)
+load_level("level_1.txt", all_sprites, camera)
 
 PlatonicSolid(decor, 300, 200, 100, 4)
 PlatonicSolid(decor, 450, 200, 100, 6)
@@ -43,6 +43,6 @@ while running:
     for group in all_sprites:
         group.update()
         group.draw(screen)
-    clock.tick(FPS)
+    print(clock.tick(FPS))
     pygame.display.flip()
 pygame.quit()

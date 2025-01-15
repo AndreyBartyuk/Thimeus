@@ -24,10 +24,11 @@ class Weapon:
 
                              [(self.w / 8 * 2.8, self.l / 12 * 9.5), (self.w / 2, self.l / 12 * 8.5),
                               (self.w / 8 * 5.2, self.l / 12 * 9.5)]]
+            self.damage = 30
 
         elif self.type == FLAMETHROWER:
             self.duration = 5
-            self.delay = self.duration + 1
+            self.delay = self.duration + 2
             self.attack = RANGED_ATTACK
             self.l = character_height / 5
             self.w = self.l * 4
@@ -44,6 +45,7 @@ class Weapon:
 
                              [(self.w / 12 * 5, self.l / 2), (self.w / 3 * 2, self.l / 2),
                               (self.w / 4 * 3, self.l), (self.w / 2, self.l)]]
+            self.damage = 3
 
         elif self.type == AXE:
             self.duration = 10
@@ -59,10 +61,11 @@ class Weapon:
                              [(0, self.l / 6), (self.w / 5 * 2, self.l / 6), (self.w, self.l / 12),
                               (self.w, self.l / 12 * 5), (self.w / 5 * 3.5, self.l / 12 * 7),
                               (self.w / 2, self.l / 3), (0, self.l / 3)]]
+            self.damage = 30
 
         elif self.type == STAFF:
             self.duration = 15
-            self.delay = self.duration + 10
+            self.delay = self.duration + 100
             self.attack = RANGED_ATTACK
             self.l = character_height * 1.5
             self.w = self.l / 9 * 2
@@ -78,6 +81,7 @@ class Weapon:
 
                              [(self.w / 4 * 0.8, self.l / 3), (self.w / 4 * 3.2, self.l / 3),
                               (self.w / 2, self.l / 9 * 4)]]
+            self.damage = 20
 
         elif self.type == HOOK:
             self.duration = 15
@@ -101,6 +105,7 @@ class Weapon:
 
                              [(self.w / 5 * 2, self.l / 12 * 11), (self.w / 5 * 3, self.l / 12 * 11),
                               (self.w / 2, self.l)]]
+            self.damage = 20
 
         elif self.type == GUN:
             self.duration = 10
@@ -124,3 +129,4 @@ class Weapon:
 
                              [(0, self.l / 6 * 1.5), (self.w / 4 * 3, self.l / 6 * 1.5),
                               (self.w / 6 * 5, self.l / 2), (self.w / 12, self.l / 2)]]
+            self.damage = 10

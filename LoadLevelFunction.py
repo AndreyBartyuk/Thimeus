@@ -1,17 +1,23 @@
-from ThimeusConstants import TILE_SIZE, CHARACTER_HEIGHT, COLORS, HOOK, GUN
+from ThimeusConstants import TILE_SIZE, CHARACTER_HEIGHT, COLORS, ENEMY_SETS, SWORD, HOOK, GUN, \
+    STAFF
 from Tile import Tile
 from Ladder import Ladder
-from Human import Human
+from Player import Player
+from Enemy import Enemy
 from Weapon import Weapon
 
 
-def load_level(filename, all_sprites, walls, ladders, projectiles, camera):
+def load_level(filename, all_sprites, camera):
     with open(f"data/levels/{filename}", "r", encoding="utf-8") as file:
         level = file.read().split("\n")
     color = COLORS[level[0]]
     level_map = level[1:]
     map_width = len(level_map[0])
     map_height = len(level_map)
+    walls = all_sprites[0]
+    ladders = all_sprites[1]
+    projectiles = all_sprites[2]
+    player = None
     for y, row in enumerate(level_map):
         for x, tile in enumerate(row):
             if tile == "#":
@@ -26,13 +32,16 @@ def load_level(filename, all_sprites, walls, ladders, projectiles, camera):
                     else:
                         neighbours.append(False)
                 Tile(walls, x * TILE_SIZE, y * TILE_SIZE, neighbours, color)
+            elif tile in ENEMY_SETS:
+                enemy = Enemy(x * TILE_SIZE + (TILE_SIZE - CHARACTER_HEIGHT // 3) // 2,
+                              y * TILE_SIZE, CHARACTER_HEIGHT, *ENEMY_SETS[tile], all_sprites)
+                all_sprites.append(enemy)
             elif tile == "P":
-                human = Human(x * TILE_SIZE + (TILE_SIZE - CHARACTER_HEIGHT // 3) // 2,
-                              y * TILE_SIZE, CHARACTER_HEIGHT, COLORS["blue"],
-                              walls, ladders, projectiles, camera)
-                human.get_weapon(Weapon(human.h, HOOK))
-                human.set_head_sides(3)
-                all_sprites.append(human)
+                player = Player(x * TILE_SIZE + (TILE_SIZE - CHARACTER_HEIGHT // 3) // 2,
+                                y * TILE_SIZE, CHARACTER_HEIGHT, COLORS["purple"], camera, all_sprites)
+                player.get_weapon(Weapon(player.h, GUN))
+                player.set_head_sides(5)
+                all_sprites.append(player)
             elif tile == "|":
                 neighbours = [False, False]
                 if 0 <= y + 1 < map_height:
@@ -42,3 +51,6 @@ def load_level(filename, all_sprites, walls, ladders, projectiles, camera):
                     if level_map[y - 1][x] == "|":
                         neighbours[1] = True
                 Ladder(ladders, x * TILE_SIZE, y * TILE_SIZE, color, *neighbours)
+    for group in all_sprites:
+        if isinstance(group, Enemy):
+            group.set_target(player)

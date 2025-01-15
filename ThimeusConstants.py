@@ -59,3 +59,9 @@ w = sprite_sheet.get_size()[0] // 10
 h = sprite_sheet.get_size()[1]
 GUN_PROJECTILE_IMAGES = [pygame.transform.scale(sprite_sheet.subsurface(i * w, 0, w, h),
                                                 (120, 100)) for i in range(10)]
+
+ENEMY_SETS = {"o": (COLORS["orange"], FLAMETHROWER, 3),
+              "y": (COLORS["yellow"], STAFF, 3),
+              "g": (COLORS["green"], AXE, 4),
+              "b": (COLORS["blue"], HOOK, 3),
+              "p": (COLORS["purple"], GUN, 5)}

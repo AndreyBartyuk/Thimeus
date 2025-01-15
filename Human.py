@@ -1,4 +1,5 @@
-from ThimeusConstants import DARK_COLOR, LINE_WIDTH, MELEE_ATTACK, RANGED_ATTACK, RIGHT_ARM, LEFT_ARM
+from ThimeusConstants import DARK_COLOR, LINE_WIDTH, RIGHT_ARM, LEFT_ARM
+from ThimeusFunctions import create_particle_rect
 from Legs import Legs
 from Arm import Arm
 from Head import Head
@@ -6,17 +7,21 @@ import pygame
 
 
 class Human(pygame.sprite.Group):
-    def __init__(self, x, y, height, color, walls_group, ladders_group, projectiles_group, camera):
+    def __init__(self, x, y, height, color, is_player, all_sprites):
         super().__init__()
         self.x = x
         self.y = y
         self.h = height
         self.w = self.h // 3
+        self.center = (self.w // 2, self.h // 2)
         self.color = pygame.Color(color)
 
         self.hit_box = pygame.sprite.Sprite(self)
         self.hit_box.image = pygame.Surface((self.w, self.h), pygame.SRCALPHA, 32)
         self.hit_box.rect = pygame.Rect(self.x, self.y, self.w, self.h)
+        mask_surface = pygame.Surface((self.w, self.h))
+        mask_surface.fill("black")
+        self.hit_box.mask = pygame.mask.from_surface(mask_surface)
 
         self.velocity = [0, 0]
         self.gravity = 0.5
@@ -39,14 +44,15 @@ class Human(pygame.sprite.Group):
         self.legs = Legs(self, self.w, self.h // 2, self.color)
         self.legs.rect = self.legs.rect.move(self.x, self.y + self.w * 1.7)
 
-        self.walls = walls_group
-        self.ladders = ladders_group
-        self.projectiles = projectiles_group
-        self.camera = camera
+        self.walls = all_sprites[0]
+        self.ladders = all_sprites[1]
+        self.projectiles = all_sprites[2]
+        self.decor = all_sprites[3]
+        self.all_sprites = all_sprites
 
-        self.right_arm = Arm(self, self.h // 3, RIGHT_ARM, self.color, self.projectiles, self.walls)
+        self.right_arm = Arm(self, self.h // 3, RIGHT_ARM, self.color, is_player, all_sprites)
         self.right_arm.set_axis(self.x + self.w * 1.1, self.y + self.w)
-        self.left_arm = Arm(self, self.h // 3, LEFT_ARM, self.color, self.projectiles, self.walls)
+        self.left_arm = Arm(self, self.h // 3, LEFT_ARM, self.color, is_player, all_sprites)
         self.left_arm.set_axis(self.x - self.w * 0.1, self.y + self.w)
 
         self.head = Head(self, self.w, 6, self.color)
@@ -56,45 +62,24 @@ class Human(pygame.sprite.Group):
         self.weapon_delay = 0
         self.current_delay = 0
 
+        self.max_health = 100
+        self.health = 100
+        self.dead = False
+
     def get_events(self):
-        keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_d]:
-            self.velocity[0] += 1
-        if keys[pygame.K_a]:
-            self.velocity[0] -= 1
-
-        if keys[pygame.K_LSHIFT]:
-            pass # rivok
-
-        if keys[pygame.K_w]:
-            if any(self.hit_box.rect.colliderect(ladder.rect) for ladder in self.ladders):
-                self.velocity[1] = -6
-
-        if keys[pygame.K_SPACE] and self.standing:
-            self.velocity[1] -= 15
-
-        if abs(self.velocity[0]) > self.max_x_speed:
-            self.velocity[0] = self.max_x_speed * (1 if self.velocity[0] > 0 else -1)
-
-        # attack
-        mouse_buttons = pygame.mouse.get_pressed()
-        if self.current_delay != 0:
-            self.current_delay -= 1
-        if mouse_buttons[0] and self.weapon is not None and self.current_delay == 0:
-            self.current_delay = self.weapon_delay
-            if self.weapon.attack == MELEE_ATTACK:
-                self.left_arm.melee_attack()
-                self.right_arm.melee_attack()
-            elif self.weapon.attack == RANGED_ATTACK:
-                self.left_arm.ranged_attack()
-                self.right_arm.ranged_attack()
+        pass
 
     def update(self):
         for sprite in self:
             sprite.update()
 
+        if self.current_delay != 0:
+            self.current_delay -= 1
+
         self.get_events()
+
+        if abs(self.velocity[0]) > self.max_x_speed:
+            self.velocity[0] = self.max_x_speed * (1 if self.velocity[0] > 0 else -1)
 
         if not self.standing:
             self.velocity[1] += self.gravity
@@ -144,9 +129,8 @@ class Human(pygame.sprite.Group):
                 self.idle_direction = -self.idle_direction
 
     def move(self, x_move, y_move):
-        self.camera.move(-x_move, -y_move)
-        # for sprite in self:
-        #    sprite.rect = sprite.rect.move(x_move, y_move)
+        for sprite in self:
+           sprite.rect = sprite.rect.move(x_move, y_move)
 
     def set_head_sides(self, amount):
         self.head.sides = amount
@@ -157,3 +141,22 @@ class Human(pygame.sprite.Group):
         self.right_arm.get_weapon(weapon)
         self.current_delay = 0
         self.weapon_delay = weapon.duration + weapon.delay
+
+    def get_damage(self, damage):
+        if not self.dead:
+            create_particle_rect(self.hit_box.rect.x, self.hit_box.rect.y,
+                                 *self.hit_box.rect.size, damage // 2, self, self.decor)
+            self.health -= damage
+            if self.health <= 0:
+                self.kill()
+
+    def kill(self):
+        if not self.dead:
+            create_particle_rect(self.hit_box.rect.x, self.hit_box.rect.y,
+                                 *self.hit_box.rect.size, 100, self, self.decor)
+            self.all_sprites.remove(self)
+            for sprite in self:
+                sprite.kill()
+                del sprite
+            self.dead = True
+            del self

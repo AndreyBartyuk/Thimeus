@@ -1,3 +1,5 @@
+from Particle import Particle
+import random
 import pygame
 import os
 import sys
@@ -17,4 +19,11 @@ def load_image(name, color_key=None):
     else:
         image_ = image_.convert_alpha()
     return image_
+
+
+def create_particle_rect(x, y, w, h, amount, parent, group):
+    for i in range(amount):
+        pos = (x + random.randrange(w), y + random.randrange(h))
+        Particle(group, *pos, random.randint(-5, 5) / 30, random.randint(10, 30) / 30, parent)
+
 
