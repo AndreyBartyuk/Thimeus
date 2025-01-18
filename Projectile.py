@@ -19,7 +19,6 @@ class Projectile(pygame.sprite.Sprite):
         self.frame_amount = 0
 
         self.walls = all_sprites[0]
-        self.decor = all_sprites[3]
         self.all_sprites = all_sprites
 
         self.is_player = is_player

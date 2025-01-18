@@ -4,7 +4,6 @@ from ThimeusConstants import (DARK_COLOR, LINE_WIDTH, SWORD, FLAMETHROWER, AXE, 
 from Projectile import Projectile
 import pygame
 import random
-import numba
 
 
 class Arm(pygame.sprite.Sprite):

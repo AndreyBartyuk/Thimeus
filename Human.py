@@ -46,8 +46,10 @@ class Human(pygame.sprite.Group):
 
         self.walls = all_sprites[0]
         self.ladders = all_sprites[1]
-        self.projectiles = all_sprites[2]
-        self.decor = all_sprites[3]
+        self.interactable = all_sprites[2]
+        self.obstacles = all_sprites[3]
+        self.decor = all_sprites[4]
+        self.projectiles = all_sprites[5]
         self.all_sprites = all_sprites
 
         self.right_arm = Arm(self, self.h // 3, RIGHT_ARM, self.color, is_player, all_sprites)
@@ -115,6 +117,10 @@ class Human(pygame.sprite.Group):
         self.head.speed = self.velocity[0] // 2 + 0.1 * self.idle_direction
         self.legs.speed = self.velocity[0]
 
+        # obstacles
+        if pygame.sprite.spritecollide(self.hit_box, self.obstacles, False):
+            self.get_damage(1)
+
         # idle animation
         self.idle_count = (self.idle_count + 1) % self.max_idle_count
         if self.idle_count == 0:
@@ -157,6 +163,4 @@ class Human(pygame.sprite.Group):
             self.all_sprites.remove(self)
             for sprite in self:
                 sprite.kill()
-                del sprite
             self.dead = True
-            del self

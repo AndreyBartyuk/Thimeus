@@ -1,4 +1,5 @@
 from ThimeusConstants import MELEE_ATTACK, RANGED_ATTACK
+from ThimeusFunctions import load_image, change_color
 from Human import Human
 import pygame
 
@@ -11,6 +12,12 @@ class Player(Human):
         self.health_bar = pygame.sprite.Sprite(self)
         self.health_bar.image = pygame.Surface((self.w * 2, self.w / 3), pygame.SRCALPHA, 32)
         self.health_bar.rect = self.health_bar.image.get_rect().move(x - self.w / 2, y - self.w / 2)
+
+        self.interact_button = pygame.sprite.Sprite(self)
+        self.key_r_image = pygame.transform.scale(change_color(load_image("keyR.png"), self.color),
+                                                  (self.w, self.w))
+        self.interact_button.image = self.key_r_image.copy()
+        self.interact_button.rect = self.interact_button.image.get_rect().move(x, y - self.w * 1.6)
 
     def get_events(self):
         keys = pygame.key.get_pressed()
@@ -50,6 +57,21 @@ class Player(Human):
                                 self.health_bar.rect.h)
         pygame.draw.rect(self.health_bar.image, self.color, part_rect, 0, 3)
         pygame.draw.rect(self.health_bar.image, self.color, (0, 0, *self.health_bar.rect.size), 4, 3)
+
+        interactions = pygame.sprite.spritecollide(self.hit_box, self.interactable, False)
+        if interactions:
+            self.interact_button.image = self.key_r_image.copy()
+            if keys[pygame.K_r]:
+                for sprite in interactions:
+                    sprite.interact()
+        else:
+            self.interact_button.image.fill((0, 0, 0, 0))
+
+    def set_params(self, color, weapon, head_sides):
+        self.color = color
+        self.weapon = weapon
+        self.set_head_sides(head_sides)
+        self.key_r_image = change_color(self.key_r_image, self.color)
 
     def move(self, x_move, y_move):
         self.camera.move(-x_move, -y_move)

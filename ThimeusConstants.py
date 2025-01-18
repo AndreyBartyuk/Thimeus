@@ -7,6 +7,11 @@ CHARACTER_HEIGHT = TILE_SIZE * 2
 LINE_WIDTH = 5
 FPS = 100
 
+MAIN_MENU = b"main_menu"
+
+STORY_MODE = b"story_mode"
+ARCADE_MODE = b"arcade_mode"
+
 DARK_COLOR = "#151515"
 COLORS = {"red": "#DE324C", "orange": "#F4895F", "yellow": "#F8E16F",
           "green": "#95CF92", "blue": "#369ACC", "purple": "#9656A2"}
