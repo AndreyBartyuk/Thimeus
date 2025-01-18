@@ -106,6 +106,7 @@ class Human(pygame.sprite.Group):
                 self.move(wall.rect.left - self.hit_box.rect.right, 0)
             elif self.velocity[0] < 0:  # moving left
                 self.move(wall.rect.right - self.hit_box.rect.left, 0)
+            self.velocity[0] = 0
 
         if self.velocity[0] > 0:
             self.velocity[0] -= self.friction

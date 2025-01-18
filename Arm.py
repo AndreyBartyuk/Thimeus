@@ -26,7 +26,7 @@ class Arm(pygame.sprite.Sprite):
         self.cur_delay = 0
 
         self.walls_group = all_sprites[0]
-        self.projectiles_group = all_sprites[2]
+        self.projectiles_group = all_sprites[5]
         self.all_sprites = all_sprites
 
         self.target_pos = (0, 0)

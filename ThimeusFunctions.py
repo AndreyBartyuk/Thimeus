@@ -4,7 +4,6 @@ import pygame
 import os
 import sys
 import math
-import numba
 
 
 def load_image(name, color_key=None):

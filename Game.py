@@ -1,6 +1,7 @@
 from Camera import Camera
+from Projectile import Projectile
 from ThimeusConstants import (TILE_SIZE, CHARACTER_HEIGHT, COLORS, ENEMY_SETS, SWORD, HOOK, GUN,
-                              STAFF, DARK_COLOR, FPS, MAIN_MENU, STORY_MODE, ARCADE_MODE,
+                              STAFF, DARK_COLOR, FPS, MAIN_MENU_MODE, STORY_MODE, ARCADE_MODE,
                               LINE_WIDTH)
 from ThimeusFunctions import load_image
 from Tile import Tile
@@ -31,10 +32,10 @@ class Game:
         self.all_sprites = [self.walls, self.ladders, self.interactable,
                             self.obstacles, self.decor, self.projectiles]
 
-        self.camera = None
         self.font_path = "data/fonts/SatyrSP.otf"
-        self.game_mode = MAIN_MENU
+        self.game_mode = MAIN_MENU_MODE
         self.levels = None
+        self.camera = None
         self.current_level = 0
         self.clock = pygame.time.Clock()
 
@@ -70,6 +71,7 @@ class Game:
                                                                       (btn_size, btn_size)), (0, 0))
 
         Liquid.load_images()
+        Projectile.load_images()
 
     def fade_transition(self, surface):
         fade_surface = pygame.Surface(pygame.display.get_window_size())
@@ -85,7 +87,7 @@ class Game:
 
     def main_loop(self):
         while True:
-            if self.game_mode == MAIN_MENU:
+            if self.game_mode == MAIN_MENU_MODE:
                 self.main_menu()
             else:
                 self.game_loop()
@@ -128,7 +130,7 @@ class Game:
             for group in self.all_sprites:
                 group.update()
                 group.draw(self.screen)
-            time = self.clock.tick(FPS)
+            self.clock.tick(FPS)
 
             if exit_door.exited:
                 running = False
@@ -169,7 +171,7 @@ class Game:
                     if self.reload_button.rect.collidepoint(pygame.mouse.get_pos()):
                         running = False
                     elif self.main_menu_button.rect.collidepoint(pygame.mouse.get_pos()):
-                        self.game_mode = MAIN_MENU
+                        self.game_mode = MAIN_MENU_MODE
                         running = False
 
             if fade_alpha > 0 and not faded:
@@ -225,10 +227,10 @@ class Game:
                     self.all_sprites.append(enemy)
                 elif tile == "@":
                     player = Player(x * TILE_SIZE + (TILE_SIZE - CHARACTER_HEIGHT // 3) // 2,
-                                    y * TILE_SIZE, CHARACTER_HEIGHT, COLORS["purple"], self.camera,
+                                    y * TILE_SIZE, CHARACTER_HEIGHT, COLORS["blue"], self.camera,
                                     self.all_sprites)
-                    player.get_weapon(Weapon(player.h, GUN))
-                    player.set_head_sides(5)
+                    player.get_weapon(Weapon(player.h, HOOK))
+                    player.set_head_sides(3)
                     self.all_sprites.append(player)
                     Door(decor, x * TILE_SIZE, (y - 1) * TILE_SIZE, color, False)
                 elif tile == "|":

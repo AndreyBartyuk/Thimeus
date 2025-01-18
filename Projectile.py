@@ -1,13 +1,56 @@
 from math import sin, cos, radians
-from ThimeusConstants import (SWORD, FLAMETHROWER, AXE, STAFF, HOOK, GUN,
-                              SWORD_PROJECTILE_IMAGES, FLAMETHROWER_PROJECTILE_IMAGES,
-                              AXE_PROJECTILE_IMAGES, STAFF_PROJECTILE_IMAGES,
-                              HOOK_PROJECTILE_IMAGES, GUN_PROJECTILE_IMAGES, COLORS)
+from ThimeusConstants import SWORD, FLAMETHROWER, AXE, STAFF, HOOK, GUN, COLORS
+from ThimeusFunctions import load_image
 import pygame
-import random
 
 
 class Projectile(pygame.sprite.Sprite):
+    images = dict()
+
+    @staticmethod
+    def load_images():
+        sprite_sheet = load_image("sword_projectile.png")
+        w = sprite_sheet.get_size()[0] // 5
+        h = sprite_sheet.get_size()[1]
+        sprites = [pygame.transform.scale(sprite_sheet.subsurface((i * w, 0, w, h)),
+                                          (300, 500)) for i in range(5)]
+        Projectile.images[SWORD] = sprites
+
+        sprite_sheet = load_image("flamethrower_projectile.png")
+        w = sprite_sheet.get_size()[0] // 61
+        h = sprite_sheet.get_size()[1]
+        sprites = [pygame.transform.scale(sprite_sheet.subsurface((i * w, 0, w, h)),
+                                          (200, 200)) for i in range(60)]
+        Projectile.images[FLAMETHROWER] = sprites
+
+        sprite_sheet = load_image("axe_projectile.png")
+        w = sprite_sheet.get_size()[0] // 12
+        h = sprite_sheet.get_size()[1]
+        sprites = [pygame.transform.scale(sprite_sheet.subsurface(i * w, 0, w, h),
+                                          (200, 200)) for i in range(12)]
+        Projectile.images[AXE] = sprites
+
+        sprite_sheet = load_image("staff_projectile.png")
+        w = sprite_sheet.get_size()[0] // 5
+        h = sprite_sheet.get_size()[1]
+        sprites = [pygame.transform.scale(sprite_sheet.subsurface(i * w, 0, w, h),
+                                          (150, 150)) for i in range(5)]
+        Projectile.images[STAFF] = sprites
+
+        sprite_sheet = load_image("hook_projectile.png")
+        w = sprite_sheet.get_size()[0] // 17
+        h = sprite_sheet.get_size()[1]
+        sprites = [pygame.transform.scale(sprite_sheet.subsurface(i * w, 0, w, h),
+                                          (300, 300)) for i in range(17)]
+        Projectile.images[HOOK] = sprites
+
+        sprite_sheet = load_image("gun_projectile.png")
+        w = sprite_sheet.get_size()[0] // 10
+        h = sprite_sheet.get_size()[1]
+        sprites = [pygame.transform.scale(sprite_sheet.subsurface(i * w, 0, w, h),
+                                          (120, 100)) for i in range(10)]
+        Projectile.images[GUN] = sprites
+
     def __init__(self, group, x, y, speed, angle, kind, damage, is_player, all_sprites, flip=False):
         super().__init__(group)
         self.kind = kind
@@ -15,8 +58,9 @@ class Projectile(pygame.sprite.Sprite):
         self.speed_x = speed * cos(radians(self.angle))
         self.speed_y = speed * sin(radians(self.angle))
         self.current_frame = 0
-        self.frames = list()
         self.frame_amount = 0
+        self.frames = list()
+        sprites = Projectile.images[self.kind]
 
         self.walls = all_sprites[0]
         self.all_sprites = all_sprites
@@ -25,17 +69,14 @@ class Projectile(pygame.sprite.Sprite):
         self.screen_rect = pygame.Rect(0, 0, *pygame.display.get_window_size())
 
         self.damage = damage
-        if self.is_player:
-            self.targets = [[group, False] for group in self.all_sprites
-                            if group.__class__.__name__ == "Enemy"]
-        else:
-            self.targets = [[group, False] for group in self.all_sprites
-                            if group.__class__.__name__ == "Player"]
+        target = "Enemy" if self.is_player else "Player"
+        self.targets = [[group, False] for group in self.all_sprites
+                        if group.__class__.__name__ == target]
 
         if self.kind == SWORD:
             for frame in [pygame.transform.rotate(pygame.transform.flip(image, False, flip),
                                                   -self.angle)
-                          for image in SWORD_PROJECTILE_IMAGES]:
+                          for image in sprites]:
                 self.frames += [frame] * 8
             self.frame_amount = 40
             self.lifetime = 40
@@ -43,10 +84,7 @@ class Projectile(pygame.sprite.Sprite):
             self.color = COLORS["red"]
 
         elif self.kind == FLAMETHROWER:
-            size = FLAMETHROWER_PROJECTILE_IMAGES[0].get_size()[0] + random.randrange(0, 20, 5)
-            self.frames = [pygame.transform.rotate(pygame.transform.scale(image, (size, size)),
-                                                   -self.angle)
-                           for image in FLAMETHROWER_PROJECTILE_IMAGES]
+            self.frames = [pygame.transform.rotate(image, -self.angle) for image in sprites]
             self.frame_amount = 60
             self.lifetime = -1
             self.destroyed_by_walls = True
@@ -55,7 +93,7 @@ class Projectile(pygame.sprite.Sprite):
         elif self.kind == AXE:
             for frame in [pygame.transform.rotate(pygame.transform.flip(image, False, flip),
                                                   -self.angle)
-                          for image in AXE_PROJECTILE_IMAGES]:
+                          for image in sprites]:
                 self.frames += [frame] * 6
             self.frame_amount = 66
             self.lifetime = 66
@@ -63,10 +101,7 @@ class Projectile(pygame.sprite.Sprite):
             self.color = COLORS["green"]
 
         elif self.kind == STAFF:
-            size = STAFF_PROJECTILE_IMAGES[0].get_size()[0] + random.randrange(0, 20, 5)
-            for frame in [pygame.transform.rotate(pygame.transform.scale(image, (size, size)),
-                                                  -self.angle)
-                          for image in STAFF_PROJECTILE_IMAGES]:
+            for frame in [pygame.transform.rotate(image, -self.angle) for image in sprites]:
                 self.frames += [frame] * 5
             self.frame_amount = 25
             self.lifetime = -1
@@ -76,7 +111,7 @@ class Projectile(pygame.sprite.Sprite):
         elif self.kind == HOOK:
             for frame in [pygame.transform.rotate(pygame.transform.flip(image, False, flip),
                                                   -self.angle)
-                          for image in HOOK_PROJECTILE_IMAGES]:
+                          for image in sprites]:
                 self.frames += [frame] * 4
             self.frame_amount = 68
             self.lifetime = 68
@@ -84,8 +119,7 @@ class Projectile(pygame.sprite.Sprite):
             self.color = COLORS["blue"]
 
         elif self.kind == GUN:
-            for frame in [pygame.transform.rotate(image, -self.angle)
-                          for image in GUN_PROJECTILE_IMAGES]:
+            for frame in [pygame.transform.rotate(image, -self.angle) for image in sprites]:
                 self.frames += [frame] * 5
             self.frame_amount = 50
             self.lifetime = -1
