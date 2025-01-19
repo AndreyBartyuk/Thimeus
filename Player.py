@@ -23,19 +23,19 @@ class Player(Human):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_d]:
-            self.velocity[0] += 1
+            self.velocity[0] += self.acceleration
         if keys[pygame.K_a]:
-            self.velocity[0] -= 1
+            self.velocity[0] -= self.acceleration
 
         if keys[pygame.K_LSHIFT]:
             pass # rivok
 
         if keys[pygame.K_w]:
             if any(self.hit_box.rect.colliderect(ladder.rect) for ladder in self.ladders):
-                self.velocity[1] = -6
+                self.velocity[1] = -self.climbing_speed
 
         if keys[pygame.K_SPACE] and self.standing:
-            self.velocity[1] -= 15
+            self.velocity[1] -= self.jump
 
         # arm target
         self.right_arm.set_target(*pygame.mouse.get_pos())

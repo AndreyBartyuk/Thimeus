@@ -39,14 +39,14 @@ class Enemy(Human):
                         (self.target.hit_box.rect.x + self.target.center[0]))
             if distance > 0:
                 if distance < self.needed_distance:
-                    self.velocity[0] += 1
+                    self.velocity[0] += self.acceleration
                 elif distance > self.needed_distance:
-                    self.velocity[0] -= 1
+                    self.velocity[0] -= self.acceleration
             elif distance < 0:
                 if abs(distance) < self.needed_distance:
-                    self.velocity[0] -= 1
+                    self.velocity[0] -= self.acceleration
                 elif  abs(distance) > self.needed_distance:
-                    self.velocity[0] += 1
+                    self.velocity[0] += self.acceleration
             elif distance == 0:
                 self.velocity[0] = -self.velocity[0]
 

@@ -9,7 +9,7 @@ class Liquid(pygame.sprite.Sprite):
 
     @staticmethod
     def load_images():
-        frame_amount = 30
+        frame_amount = 20 # 30
         for color in COLORS:
             frames = list()
             for frame in [generate_wave(TILE_SIZE, TILE_SIZE, TILE_SIZE / 20, 0.127,

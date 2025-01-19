@@ -16,7 +16,7 @@ class Arm(pygame.sprite.Sprite):
         self.w = length // 8
         self.color = pygame.Color(color)
         self.type = kind
-        self.speed = 10
+        self.speed = 14 # 10
 
         self.is_active = False
         self.is_targeting = True

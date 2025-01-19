@@ -78,7 +78,7 @@ class Game:
         fade_surface.fill("black")
         fade_alpha = 0
         while fade_alpha < 255:
-            fade_alpha += 10
+            fade_alpha += 14 # 10
             fade_surface.set_alpha(fade_alpha)
             self.screen.blit(surface, (0, 0))
             self.screen.blit(fade_surface, (0, 0))
@@ -155,14 +155,16 @@ class Game:
 
             if defeat:
                 if fade_alpha < 220:
-                    fade_alpha += 5
+                    fade_alpha += 7 # 5
                     fade_alpha = fade_alpha if fade_alpha < 220 else 220
                 if self.game_over_label.rect.y < 200:
-                    self.game_over_label.rect.y += 10
+                    self.game_over_label.rect.y += 14 # 10
+                    if self.game_over_label.rect.y > 200:
+                        self.game_over_label.rect.y = 200
                 if self.results_label.image.get_alpha() < 255:
-                    self.results_label.image.set_alpha(self.results_label.image.get_alpha() + 5)
-                    self.reload_button.image.set_alpha(self.reload_button.image.get_alpha() + 5)
-                    self.main_menu_button.image.set_alpha(self.main_menu_button.image.get_alpha() + 5)
+                    self.results_label.image.set_alpha(self.results_label.image.get_alpha() + 7) # 5
+                    self.reload_button.image.set_alpha(self.reload_button.image.get_alpha() + 7)
+                    self.main_menu_button.image.set_alpha(self.main_menu_button.image.get_alpha() + 7)
                 fade_surface.set_alpha(fade_alpha)
                 self.screen.blit(fade_surface, (0, 0))
                 self.interface.draw(self.screen)
@@ -175,8 +177,7 @@ class Game:
                         running = False
 
             if fade_alpha > 0 and not faded:
-                fade_alpha -= 10
-                fade_alpha = fade_alpha if fade_alpha > 0 else 0
+                fade_alpha -= 14 # 10
                 fade_surface.set_alpha(fade_alpha)
                 self.screen.blit(fade_surface, (0, 0))
             else:
@@ -227,10 +228,10 @@ class Game:
                     self.all_sprites.append(enemy)
                 elif tile == "@":
                     player = Player(x * TILE_SIZE + (TILE_SIZE - CHARACTER_HEIGHT // 3) // 2,
-                                    y * TILE_SIZE, CHARACTER_HEIGHT, COLORS["blue"], self.camera,
+                                    y * TILE_SIZE, CHARACTER_HEIGHT, COLORS["red"], self.camera,
                                     self.all_sprites)
-                    player.get_weapon(Weapon(player.h, HOOK))
-                    player.set_head_sides(3)
+                    player.get_weapon(Weapon(player.h, SWORD))
+                    player.set_head_sides(6)
                     self.all_sprites.append(player)
                     Door(decor, x * TILE_SIZE, (y - 1) * TILE_SIZE, color, False)
                 elif tile == "|":

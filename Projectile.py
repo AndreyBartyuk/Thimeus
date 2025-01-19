@@ -74,54 +74,61 @@ class Projectile(pygame.sprite.Sprite):
                         if group.__class__.__name__ == target]
 
         if self.kind == SWORD:
+            mult = 6 # 8
             for frame in [pygame.transform.rotate(pygame.transform.flip(image, False, flip),
                                                   -self.angle)
                           for image in sprites]:
-                self.frames += [frame] * 8
-            self.frame_amount = 40
-            self.lifetime = 40
+                self.frames += [frame] * mult
+            self.frame_amount = len(sprites) * mult
+            self.lifetime = self.frame_amount
             self.destroyed_by_walls = False
             self.color = COLORS["red"]
 
         elif self.kind == FLAMETHROWER:
-            self.frames = [pygame.transform.rotate(image, -self.angle) for image in sprites]
-            self.frame_amount = 60
+            mult = 1
+            for frame in [pygame.transform.rotate(image, -self.angle) for image in sprites]:
+                self.frames += [frame] * mult
+            self.frame_amount = len(sprites) * mult
             self.lifetime = -1
             self.destroyed_by_walls = True
             self.color = COLORS["orange"]
 
         elif self.kind == AXE:
+            mult = 4 # 6
             for frame in [pygame.transform.rotate(pygame.transform.flip(image, False, flip),
                                                   -self.angle)
                           for image in sprites]:
-                self.frames += [frame] * 6
-            self.frame_amount = 66
-            self.lifetime = 66
+                self.frames += [frame] * mult
+            self.frame_amount = len(sprites) * mult
+            self.lifetime = self.frame_amount
             self.destroyed_by_walls = False
             self.color = COLORS["green"]
 
         elif self.kind == STAFF:
+            mult = 3 # 5
             for frame in [pygame.transform.rotate(image, -self.angle) for image in sprites]:
-                self.frames += [frame] * 5
-            self.frame_amount = 25
+                self.frames += [frame] * mult
+            self.frame_amount = len(sprites) * mult
             self.lifetime = -1
             self.destroyed_by_walls = True
             self.color = COLORS["yellow"]
 
         elif self.kind == HOOK:
+            mult = 3 # 4
             for frame in [pygame.transform.rotate(pygame.transform.flip(image, False, flip),
                                                   -self.angle)
                           for image in sprites]:
-                self.frames += [frame] * 4
-            self.frame_amount = 68
-            self.lifetime = 68
+                self.frames += [frame] * mult
+            self.frame_amount = len(sprites) * mult
+            self.lifetime = self.frame_amount
             self.destroyed_by_walls = False
             self.color = COLORS["blue"]
 
         elif self.kind == GUN:
+            mult = 3 # 5
             for frame in [pygame.transform.rotate(image, -self.angle) for image in sprites]:
-                self.frames += [frame] * 5
-            self.frame_amount = 50
+                self.frames += [frame] * mult
+            self.frame_amount = len(sprites) * mult
             self.lifetime = -1
             self.destroyed_by_walls = True
             self.color = COLORS["purple"]

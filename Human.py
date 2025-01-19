@@ -24,9 +24,12 @@ class Human(pygame.sprite.Group):
         self.hit_box.mask = pygame.mask.from_surface(mask_surface)
 
         self.velocity = [0, 0]
-        self.gravity = 0.5
-        self.friction = 0.8
-        self.max_x_speed = 8 + self.friction
+        self.gravity = 0.7 # 0.5
+        self.friction = 1.12 # 0.8
+        self.acceleration = 1.4 # 1
+        self.jump = 19 # 15
+        self.climbing_speed = 8.4 # 6
+        self.max_x_speed = 11.2 + self.friction # 8
         self.standing = False
 
         self.idle_count = 0

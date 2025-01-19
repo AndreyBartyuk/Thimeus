@@ -12,17 +12,18 @@ class PlatonicSolid(pygame.sprite.Sprite):
         image_w = 500
         image_h = 500
         self.frames = list()
+        mult = 3 # 5
         if num == 0:
             for frame in [pygame.transform.scale(sprite_sheet_.subsurface(i * image_w, j * image_h,
                                                                           image_w, image_h),
                                                  (size, size)) for j in range(5) for i in range(10)]:
-                self.frames += [frame] * 5
+                self.frames += [frame] * mult
         else:
             for frame in [pygame.transform.scale(sprite_sheet_.subsurface(i * image_w, 0,
                                                                           image_w, image_h),
                                                  (size, size)) for i in range(self.frame_amount)]:
-                self.frames += [frame] * 5
-        self.frame_amount *= 5
+                self.frames += [frame] * mult
+        self.frame_amount *= mult
         self.current_frame = 0
         self.image = self.frames[0]
         self.rect = self.image.get_rect().move(x - size // 2, y - size // 2)

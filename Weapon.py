@@ -6,8 +6,8 @@ class Weapon:
         self.type = weapon_type
 
         if self.type == SWORD:
-            self.duration = 20
-            self.delay = self.duration + 10
+            self.duration = 14 # 20
+            self.delay = self.duration + 7 # 10
             self.attack = MELEE_ATTACK
             self.l = character_height
             self.w = self.l / 3
@@ -27,8 +27,8 @@ class Weapon:
             self.damage = 30
 
         elif self.type == FLAMETHROWER:
-            self.duration = 5
-            self.delay = self.duration + 2
+            self.duration = 4 # 5
+            self.delay = self.duration + 1 # 2
             self.attack = RANGED_ATTACK
             self.l = character_height / 5
             self.w = self.l * 4
@@ -48,8 +48,8 @@ class Weapon:
             self.damage = 3
 
         elif self.type == AXE:
-            self.duration = 10
-            self.delay = self.duration + 50
+            self.duration = 7 # 10
+            self.delay = self.duration + 36 # 50
             self.attack = MELEE_ATTACK
             self.l = character_height
             self.w = self.l / 12 * 5
@@ -64,8 +64,8 @@ class Weapon:
             self.damage = 30
 
         elif self.type == STAFF:
-            self.duration = 15
-            self.delay = self.duration + 100
+            self.duration = 11 # 15
+            self.delay = self.duration + 70 # 100
             self.attack = RANGED_ATTACK
             self.l = character_height * 1.5
             self.w = self.l / 9 * 2
@@ -84,8 +84,8 @@ class Weapon:
             self.damage = 20
 
         elif self.type == HOOK:
-            self.duration = 15
-            self.delay = self.duration + 10
+            self.duration = 11 # 15
+            self.delay = self.duration + 7 # 10
             self.attack = MELEE_ATTACK
             self.l = character_height
             self.w = self.l / 12 * 5
@@ -108,8 +108,8 @@ class Weapon:
             self.damage = 20
 
         elif self.type == GUN:
-            self.duration = 10
-            self.delay = 10
+            self.duration = 7 # 10
+            self.delay = 7 # 10
             self.attack = RANGED_ATTACK
             self.l = character_height / 2.5
             self.w = self.l * 2
