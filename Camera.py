@@ -21,7 +21,7 @@ class Camera:
 
     def move(self, x_move, y_move):
         for group in self.all_sprites:
-            if group == self.target:
+            if group == self.target or group.__class__.__name__ == "Interface":
                 continue
             for sprite in group:
                 sprite.rect = sprite.rect.move(x_move, y_move)

@@ -1,9 +1,11 @@
 from Camera import Camera
+from Interface import Interface
 from Projectile import Projectile
 from ThimeusConstants import (TILE_SIZE, CHARACTER_HEIGHT, COLORS, ENEMY_SETS, SWORD, HOOK, GUN,
                               STAFF, DARK_COLOR, FPS, MAIN_MENU_MODE, STORY_MODE, ARCADE_MODE,
                               LINE_WIDTH)
 from ThimeusFunctions import load_image
+from PlatonicSolid import PlatonicSolid
 from Tile import Tile
 from Ladder import Ladder
 from Spike import Spike
@@ -184,11 +186,11 @@ class Game:
                 faded = True
 
             fps = pygame.font.Font(self.font_path, 150).render(str(round(self.clock.get_fps())), True, "white")
-            self.screen.blit(fps, (30, 30))
+            self.screen.blit(fps, (self.width - 170, 50))
 
             pygame.display.flip()
         if not defeat:
-            self.current_level = (self.current_level + 1) % 2
+            self.current_level = (self.current_level + 1) % 4
         self.fade_transition(self.screen.copy())
 
 
@@ -230,7 +232,7 @@ class Game:
                     player = Player(x * TILE_SIZE + (TILE_SIZE - CHARACTER_HEIGHT // 3) // 2,
                                     y * TILE_SIZE, CHARACTER_HEIGHT, COLORS["red"], self.camera,
                                     self.all_sprites)
-                    player.get_weapon(Weapon(player.h, SWORD))
+                    player.set_weapon(Weapon(player.h, SWORD))
                     player.set_head_sides(6)
                     self.all_sprites.append(player)
                     Door(decor, x * TILE_SIZE, (y - 1) * TILE_SIZE, color, False)
@@ -244,7 +246,10 @@ class Game:
                             neighbours[1] = True
                     Ladder(ladders, x * TILE_SIZE, y * TILE_SIZE, color, *neighbours)
                 elif tile == "^":
-                    Spike(obstacles, x * TILE_SIZE, y * TILE_SIZE, color)
+                    faced_down = False
+                    if 0 <= y - 1 < map_height and level_map[y - 1][x] == "#":
+                        faced_down = True
+                    Spike(obstacles, x * TILE_SIZE, y * TILE_SIZE, faced_down, color)
                 elif tile == "~":
                     up_free = True
                     if 0 <= y - 1 < map_height:
@@ -253,9 +258,12 @@ class Game:
                     Liquid(obstacles, x * TILE_SIZE, y * TILE_SIZE, up_free, color)
                 elif tile == "E":
                     exit_door = Door(interactable, x * TILE_SIZE, y * TILE_SIZE, color, True)
+                elif tile.isdigit():
+                    PlatonicSolid(interactable, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, tile)
         for group in self.all_sprites:
             if isinstance(group, Enemy):
                 group.set_target(player)
         self.camera.set_target()
+        self.all_sprites.append(Interface(player, 6, self.all_sprites))
         return player, exit_door
 

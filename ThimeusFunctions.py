@@ -7,7 +7,7 @@ import math
 
 
 def load_image(name, color_key=None):
-    fullname = os.path.join("data", name)
+    fullname = os.path.join("data/images", name)
     if not os.path.isfile(fullname):
         print(f"Image file {name} does not exist")
         sys.exit()
@@ -21,10 +21,17 @@ def load_image(name, color_key=None):
         image_ = image_.convert_alpha()
     return image_
 
-def create_particle_rect(x, y, w, h, amount, parent, group):
+def create_particle_rect(x, y, w, h, amount, color, group):
     for i in range(amount):
         pos = (x + random.randrange(w), y + random.randrange(h))
-        Particle(group, *pos, random.randint(-5, 5) / 30, random.randint(10, 30) / 30, parent)
+        Particle(group, *pos, random.randint(-7, 7) / 30, random.randint(20, 40) / 30, color)
+
+def create_particle_trace(x, y, w, h, amount, direction, color, group):
+    for i in range(amount):
+        pos = (x + random.randrange(w), y + random.randrange(h))
+        particle = Particle(group, *pos, direction * random.randint(10, 15) / 10,
+                            random.randint(-1, 1) / 10, color)
+        particle.velocity[1] = 0
 
 def generate_wave(width, height, amplitude, frequency, phase, color):
     surface = pygame.Surface((width, height), pygame.SRCALPHA)

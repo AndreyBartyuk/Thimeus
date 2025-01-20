@@ -23,7 +23,7 @@ class Arm(pygame.sprite.Sprite):
 
         self.weapon = None
         self.delay = 0
-        self.cur_delay = 0
+        self.current_delay = 0
 
         self.walls_group = all_sprites[0]
         self.projectiles_group = all_sprites[5]
@@ -49,7 +49,7 @@ class Arm(pygame.sprite.Sprite):
         cur_x, cur_y = self.target_pos
 
         self.is_active = True
-        if self.cur_delay == 0:
+        if self.current_delay == 0:
             self.targets = list()
             angle = degrees(1.5 * pi - atan2((axis_x - cur_x), (axis_y - cur_y)))
             if self.type == LEFT_ARM:
@@ -73,7 +73,7 @@ class Arm(pygame.sprite.Sprite):
                             self.targets[index][1] = True
                             target.get_damage(self.weapon.damage)
 
-            self.cur_delay -= 1
+            self.current_delay -= 1
             if self.type == RIGHT_ARM:
                 self.move(self.angle + self.speed)
             else:
@@ -144,19 +144,19 @@ class Arm(pygame.sprite.Sprite):
         return rotated_x + self.rect.x + x, rotated_y + self.rect.y + y
 
     def melee_attack(self):
-        if not self.is_active or self.cur_delay != 0:
+        if not self.is_active or self.current_delay != 0:
             return None
-        self.cur_delay = self.delay
+        self.current_delay = self.delay
         pos = self.get_rotated_projectile_pos()
         damage = self.weapon.damage
         if self.weapon.type == SWORD:
             Projectile(self.projectiles_group, pos[0], pos[1], 0, self.angle, SWORD, damage,
                        self.is_player, self.all_sprites, flip=not bool(self.type))
         elif self.weapon.type == AXE:
-            Projectile(self.projectiles_group, pos[0], pos[1], 2, self.angle, AXE, damage,
+            Projectile(self.projectiles_group, pos[0], pos[1], 3, self.angle, AXE, damage,
                        self.is_player, self.all_sprites, flip=not bool(self.type))
         elif self.weapon.type == HOOK:
-            Projectile(self.projectiles_group, pos[0], pos[1], 10, self.angle, HOOK, damage,
+            Projectile(self.projectiles_group, pos[0], pos[1], 15, self.angle, HOOK, damage,
                        self.is_player, self.all_sprites, flip=not bool(self.type))
 
     def ranged_attack(self):
@@ -165,14 +165,14 @@ class Arm(pygame.sprite.Sprite):
         pos = self.get_rotated_projectile_pos()
         damage = self.weapon.damage
         if self.weapon.type == FLAMETHROWER:
-            Projectile(self.projectiles_group, pos[0], pos[1], 7, self.angle + random.randrange(-10, 11),
+            Projectile(self.projectiles_group, pos[0], pos[1], 10, self.angle + random.randrange(-10, 11),
                        FLAMETHROWER, damage, self.is_player, self.all_sprites)
         elif self.weapon.type == STAFF:
             for i in range(-2, 3):
-                Projectile(self.projectiles_group, pos[0], pos[1], 7, self.angle + i * 10,
+                Projectile(self.projectiles_group, pos[0], pos[1], 10, self.angle + i * 10,
                            STAFF, damage, self.is_player, self.all_sprites)
         elif self.weapon.type == GUN:
-            Projectile(self.projectiles_group, pos[0], pos[1], 15, self.angle + random.randrange(-1, 2),
+            Projectile(self.projectiles_group, pos[0], pos[1], 21, self.angle + random.randrange(-2, 3),
                        GUN, damage, self.is_player, self.all_sprites)
 
     def get_weapon(self, weapon):

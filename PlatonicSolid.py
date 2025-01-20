@@ -12,7 +12,7 @@ class PlatonicSolid(pygame.sprite.Sprite):
         image_w = 500
         image_h = 500
         self.frames = list()
-        mult = 3 # 5
+        mult = 4 # 5
         if num == 0:
             for frame in [pygame.transform.scale(sprite_sheet_.subsurface(i * image_w, j * image_h,
                                                                           image_w, image_h),
@@ -26,7 +26,7 @@ class PlatonicSolid(pygame.sprite.Sprite):
         self.frame_amount *= mult
         self.current_frame = 0
         self.image = self.frames[0]
-        self.rect = self.image.get_rect().move(x - size // 2, y - size // 2)
+        self.rect = self.image.get_rect().move(x, y)
         self.mask = pygame.mask.from_surface(self.image)
 
     def update(self):
@@ -34,3 +34,6 @@ class PlatonicSolid(pygame.sprite.Sprite):
         self.current_frame = (self.current_frame + 1) % self.frame_amount
         self.image = self.frames[self.current_frame]
         self.mask = pygame.mask.from_surface(self.image)
+
+    def interact(self):
+        pass

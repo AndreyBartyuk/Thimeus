@@ -8,7 +8,7 @@ import random
 class Enemy(Human):
     def __init__(self, x, y, height, color, weapon, head_sides, all_sprites):
         super().__init__(x, y, height, color, False, all_sprites)
-        self.get_weapon(Weapon(self.h, weapon))
+        self.set_weapon(Weapon(self.h, weapon))
         self.set_head_sides(head_sides)
 
         self.view_field = pygame.sprite.Sprite(self)

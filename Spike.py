@@ -3,7 +3,7 @@ import pygame
 
 
 class Spike(pygame.sprite.Sprite):
-    def __init__(self, group, x, y, color):
+    def __init__(self, group, x, y, faced_down, color):
         super().__init__(group)
         self.color = color
         self.image = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA, 32)
@@ -15,3 +15,4 @@ class Spike(pygame.sprite.Sprite):
                                                      (TILE_SIZE - LINE_WIDTH, TILE_SIZE),
                                                      (TILE_SIZE // 2, LINE_WIDTH * 2)),
                             round(LINE_WIDTH * 1.5))
+        self.image = pygame.transform.flip(self.image, False, faced_down)

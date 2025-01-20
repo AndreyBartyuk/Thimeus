@@ -1,6 +1,7 @@
 from ThimeusConstants import MELEE_ATTACK, RANGED_ATTACK
-from ThimeusFunctions import load_image, change_color
+from ThimeusFunctions import load_image, change_color, create_particle_trace
 from Human import Human
+from Weapon import Weapon
 import pygame
 
 
@@ -19,6 +20,9 @@ class Player(Human):
         self.interact_button.image = self.key_r_image.copy()
         self.interact_button.rect = self.interact_button.image.get_rect().move(x, y - self.w * 1.6)
 
+        self.dash_duration = 10
+        self.current_dash_cooldown = 0
+
     def get_events(self):
         keys = pygame.key.get_pressed()
 
@@ -28,7 +32,22 @@ class Player(Human):
             self.velocity[0] -= self.acceleration
 
         if keys[pygame.K_LSHIFT]:
-            pass # rivok
+            if self.current_dash_cooldown == 0 and self.velocity[0] != 0:
+                direction = 1 if self.velocity[0] >= 0 else -1
+                self.velocity = [self.dash_speed * direction, 0]
+                self.current_dash_cooldown = self.dash_duration
+                self.dashing = True
+        if self.dashing:
+            direction = 1 if self.velocity[0] >= 0 else -1
+            create_particle_trace(self.hit_box.rect.x, self.hit_box.rect.y,
+                                  *self.hit_box.rect.size, 5,
+                                  -direction, self.color, self.decor)
+
+        if self.current_dash_cooldown != 0:
+            self.current_dash_cooldown -= 1
+            if self.current_dash_cooldown == 0 and self.dashing:
+                self.current_dash_cooldown = self.dash_duration * 3
+                self.dashing = False
 
         if keys[pygame.K_w]:
             if any(self.hit_box.rect.colliderect(ladder.rect) for ladder in self.ladders):
@@ -67,9 +86,9 @@ class Player(Human):
         else:
             self.interact_button.image.fill((0, 0, 0, 0))
 
-    def set_params(self, color, weapon, head_sides):
-        self.color = color
-        self.weapon = weapon
+    def set_power(self, color, weapon, head_sides):
+        self.set_color(color)
+        self.set_weapon(Weapon(self.h, weapon))
         self.set_head_sides(head_sides)
         self.key_r_image = change_color(self.key_r_image, self.color)
 

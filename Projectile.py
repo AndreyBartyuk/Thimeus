@@ -13,7 +13,7 @@ class Projectile(pygame.sprite.Sprite):
         w = sprite_sheet.get_size()[0] // 5
         h = sprite_sheet.get_size()[1]
         sprites = [pygame.transform.scale(sprite_sheet.subsurface((i * w, 0, w, h)),
-                                          (300, 500)) for i in range(5)]
+                                          (400, 500)) for i in range(5)]
         Projectile.images[SWORD] = sprites
 
         sprite_sheet = load_image("flamethrower_projectile.png")
@@ -153,10 +153,13 @@ class Projectile(pygame.sprite.Sprite):
                     self.targets[index][1] = True
                     target.get_damage(self.damage)
 
-        if ((pygame.sprite.spritecollide(self, self.walls, dokill=False,
-                                         collided=pygame.sprite.collide_mask) and
-             self.destroyed_by_walls) or not self.rect.colliderect(self.screen_rect)
-                or self.lifetime == 0):
+        if self.lifetime == 0:
             self.kill()
-            del self
+        elif not self.rect.colliderect(self.screen_rect):
+            self.kill()
+        elif self.destroyed_by_walls:
+            if pygame.sprite.spritecollide(self, self.walls, False, collided=pygame.sprite.collide_mask):
+                self.kill()
+
+
 

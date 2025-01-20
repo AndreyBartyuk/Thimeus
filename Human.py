@@ -30,6 +30,7 @@ class Human(pygame.sprite.Group):
         self.jump = 19 # 15
         self.climbing_speed = 8.4 # 6
         self.max_x_speed = 11.2 + self.friction # 8
+        self.dash_speed = 40
         self.standing = False
 
         self.idle_count = 0
@@ -70,6 +71,7 @@ class Human(pygame.sprite.Group):
         self.max_health = 100
         self.health = 100
         self.dead = False
+        self.dashing = False
 
     def get_events(self):
         pass
@@ -83,10 +85,10 @@ class Human(pygame.sprite.Group):
 
         self.get_events()
 
-        if abs(self.velocity[0]) > self.max_x_speed:
+        if abs(self.velocity[0]) > self.max_x_speed and not self.dashing:
             self.velocity[0] = self.max_x_speed * (1 if self.velocity[0] > 0 else -1)
 
-        if not self.standing:
+        if not self.standing and not self.dashing:
             self.velocity[1] += self.gravity
         self.move(0, self.velocity[1])
         on_ground = False
@@ -109,7 +111,6 @@ class Human(pygame.sprite.Group):
                 self.move(wall.rect.left - self.hit_box.rect.right, 0)
             elif self.velocity[0] < 0:  # moving left
                 self.move(wall.rect.right - self.hit_box.rect.left, 0)
-            self.velocity[0] = 0
 
         if self.velocity[0] > 0:
             self.velocity[0] -= self.friction
@@ -123,7 +124,7 @@ class Human(pygame.sprite.Group):
 
         # obstacles
         if pygame.sprite.spritecollide(self.hit_box, self.obstacles, False):
-            self.get_damage(1)
+            self.get_damage(0.5)
 
         # idle animation
         self.idle_count = (self.idle_count + 1) % self.max_idle_count
@@ -145,17 +146,28 @@ class Human(pygame.sprite.Group):
     def set_head_sides(self, amount):
         self.head.sides = amount
 
-    def get_weapon(self, weapon):
+    def set_color(self, color):
+        self.color = color
+        self.head.color = color
+        self.legs.color = color
+        self.right_arm.color = color
+        self.left_arm.color = color
+        self.body.image.fill((0, 0, 0, 0))
+        points = [(0, 0), (self.w, 0), (self.w // 2, self.h // 4)]
+        pygame.draw.polygon(self.body.image, DARK_COLOR, points)
+        pygame.draw.polygon(self.body.image, self.color, points, LINE_WIDTH)
+
+    def set_weapon(self, weapon):
         self.weapon = weapon
         self.left_arm.get_weapon(weapon)
         self.right_arm.get_weapon(weapon)
-        self.current_delay = 0
+        self.current_delay = self.right_arm.current_delay = self.left_arm.current_delay = 0
         self.weapon_delay = weapon.duration + weapon.delay
 
     def get_damage(self, damage):
-        if not self.dead:
+        if not self.dead and not self.dashing:
             create_particle_rect(self.hit_box.rect.x, self.hit_box.rect.y,
-                                 *self.hit_box.rect.size, damage // 2, self, self.decor)
+                                 *self.hit_box.rect.size, round(damage / 2), self.color, self.decor)
             self.health -= damage
             if self.health <= 0:
                 self.kill()
@@ -163,7 +175,7 @@ class Human(pygame.sprite.Group):
     def kill(self):
         if not self.dead:
             create_particle_rect(self.hit_box.rect.x, self.hit_box.rect.y,
-                                 *self.hit_box.rect.size, 100, self, self.decor)
+                                 *self.hit_box.rect.size, 100, self.color, self.decor)
             self.all_sprites.remove(self)
             for sprite in self:
                 sprite.kill()
