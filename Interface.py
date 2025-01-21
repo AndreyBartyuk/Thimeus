@@ -1,5 +1,5 @@
 from ThimeusConstants import COLORS, SWORD, FLAMETHROWER, AXE, STAFF, HOOK, GUN, DARK_COLOR
-from ThimeusFunctions import change_color, create_particle_rect, load_image
+from ThimeusFunctions import change_color, create_particle_rect
 from PlatonicSolid import PlatonicSolid
 import pygame
 import math
@@ -13,7 +13,7 @@ class Interface(pygame.sprite.Group):
               (COLORS["blue"], HOOK, 3),
               (COLORS["purple"], GUN, 5)]
 
-    def __init__(self, player, powers_amount, all_sprites):
+    def __init__(self, player, powers_amount, current_power, all_sprites):
         super().__init__()
         self.player = player
         self.color = self.player.color
@@ -70,7 +70,8 @@ class Interface(pygame.sprite.Group):
                                              self.inventory.rect.y + rect[1] + self.line_width,
                                              rect[2] - self.line_width * 2, i))
 
-        self.current_power = 0
+        self.current_power = current_power
+        self.set_power(current_power)
 
     def update(self):
         self.health = self.player.health
@@ -92,14 +93,11 @@ class Interface(pygame.sprite.Group):
                         math.pi, -math.pi + math.pi * 2 * (self.current_power_cooldown / self.power_cooldown), 25)
 
         if self.current_power_cooldown == 0:
-            for i in range(self.powers_amount):
-                if eval(f"pygame.key.get_pressed()[pygame.K_{i + 1}]"):
-                    if self.current_power == i:
+            for power in range(self.powers_amount):
+                if eval(f"pygame.key.get_pressed()[pygame.K_{power + 1}]"):
+                    if self.current_power == power:
                         continue
-                    self.current_power = i
-                    self.pointer.image = change_color(self.pointer.image, self.powers[i][0])
-                    self.color = self.powers[i][0]
-                    self.player.set_power(*self.powers[i])
+                    self.set_power(power)
                     self.current_power_cooldown = self.power_cooldown
                     create_particle_rect(self.player.hit_box.rect.x, self.player.hit_box.rect.y,
                                          *self.player.hit_box.rect.size, 20, self.color, self.decor)
@@ -120,4 +118,10 @@ class Interface(pygame.sprite.Group):
 
         for solid in self.solids:
             solid.update()
+
+    def set_power(self, power):
+        self.current_power = power
+        self.pointer.image = change_color(self.pointer.image, self.powers[power][0])
+        self.color = self.powers[power][0]
+        self.player.set_power(*self.powers[power])
 

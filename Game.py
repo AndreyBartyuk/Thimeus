@@ -15,6 +15,7 @@ from Player import Player
 from Enemy import Enemy
 from Weapon import Weapon
 import pygame
+import json
 
 
 class Game:
@@ -100,19 +101,26 @@ class Game:
             group.empty()
 
     def main_menu(self):
-        self.current_level = 0
         self.game_mode = STORY_MODE
-        if self.game_mode == STORY_MODE:
-            self.levels = Game.story_mode_levels
-        elif self.game_mode == ARCADE_MODE:
-            pass
+
 
     def game_loop(self):
         self.game_over_label.rect.y = -220
         self.reload_button.image.set_alpha(0)
         self.main_menu_button.image.set_alpha(0)
 
-        player, exit_door = self.load_level(self.levels[self.current_level])
+        with open("data/save.json") as file:
+            save_data = json.load(file)
+
+        level_data = None
+        if self.game_mode == STORY_MODE:
+            self.levels = Game.story_mode_levels
+            level_data = save_data["story_mode_save"]
+            self.current_level = level_data["current_level"]
+        elif self.game_mode == ARCADE_MODE:
+            level_data = save_data["arcade_mode_save"]
+
+        player, exit_door, interface = self.load_level(self.levels[self.current_level])
         enemies = list(filter(lambda x: isinstance(x, Enemy), self.all_sprites))
         defeat = False
         running = True
@@ -139,7 +147,7 @@ class Game:
 
             elif player.dead and not defeat:
                 defeat = True
-                enemies_killed = len([1 for group in enemies if group.dead])
+                enemies_killed = level_data["enemies_killed"] + len([1 for group in enemies if group.dead])
                 results_str = [f"Комнат пройдено: {self.current_level + 1}",
                                f"Врагов побеждено: {enemies_killed}"]
                 results = list(map(lambda x: pygame.font.Font(self.font_path,
@@ -178,7 +186,7 @@ class Game:
                         self.game_mode = MAIN_MENU_MODE
                         running = False
 
-            if fade_alpha > 0 and not faded:
+            if not faded and fade_alpha > 0:
                 fade_alpha -= 14 # 10
                 fade_surface.set_alpha(fade_alpha)
                 self.screen.blit(fade_surface, (0, 0))
@@ -190,7 +198,16 @@ class Game:
 
             pygame.display.flip()
         if not defeat:
-            self.current_level = (self.current_level + 1) % 4
+            print()
+            if self.game_mode == STORY_MODE:
+                save_data["story_mode_save"]["current_health"] = player.health
+                save_data["story_mode_save"]["current_power"] = interface.current_power
+                save_data["story_mode_save"]["current_level"] += 1
+                save_data["story_mode_save"]["enemies_killed"] += len([1 for group in enemies if group.dead])
+            elif self.game_mode == ARCADE_MODE:
+                pass
+            with open("data/save.json", "w") as file:
+                json.dump(save_data, file, indent=2)
         self.fade_transition(self.screen.copy())
 
 
@@ -232,8 +249,6 @@ class Game:
                     player = Player(x * TILE_SIZE + (TILE_SIZE - CHARACTER_HEIGHT // 3) // 2,
                                     y * TILE_SIZE, CHARACTER_HEIGHT, COLORS["red"], self.camera,
                                     self.all_sprites)
-                    player.set_weapon(Weapon(player.h, SWORD))
-                    player.set_head_sides(6)
                     self.all_sprites.append(player)
                     Door(decor, x * TILE_SIZE, (y - 1) * TILE_SIZE, color, False)
                 elif tile == "|":
@@ -264,6 +279,24 @@ class Game:
             if isinstance(group, Enemy):
                 group.set_target(player)
         self.camera.set_target()
-        self.all_sprites.append(Interface(player, 6, self.all_sprites))
-        return player, exit_door
+
+        with open("data/save.json") as file:
+            save_data = json.load(file)
+
+        level_data = None
+        powers_amount = 6
+        if self.game_mode == STORY_MODE:
+            level_data = save_data["story_mode_save"]
+            powers_amount = level_data["powers_amount"]
+        elif self.game_mode == ARCADE_MODE:
+            level_data = save_data["arcade_mode_save"]
+
+        current_health = level_data["current_health"]
+        current_power = level_data["current_power"]
+
+        player.health = current_health
+
+        interface = Interface(player, powers_amount, current_power, self.all_sprites)
+        self.all_sprites.append(interface)
+        return player, exit_door, interface
 
