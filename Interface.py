@@ -36,10 +36,10 @@ class Interface(pygame.sprite.Group):
         self.slot_size = 120
         self.spacing = 36
 
-        font_size = 65
+        self.font_size = 65
         self.inventory = pygame.sprite.Sprite(self)
         self.inventory.image = pygame.Surface((self.slot_size * 6 + self.spacing * 5,
-                                               self.slot_size + font_size), pygame.SRCALPHA, 32)
+                                               self.slot_size + self.font_size), pygame.SRCALPHA, 32)
         self.inventory.rect = self.inventory.image.get_rect().move(left, top + 75 + self.spacing)
 
         self.power_reload = pygame.sprite.Sprite(self)
@@ -57,21 +57,36 @@ class Interface(pygame.sprite.Group):
                                                                self.inventory.rect.y - self.spacing // 2)
         pygame.draw.rect(self.pointer.image, self.color, (0, 0, *self.pointer.rect.size), 0, 10)
 
-        font = pygame.font.Font("data/fonts/SatyrSP.otf", font_size)
         self.solids = list()
+        self.load_inventory()
+
+        self.current_power = current_power
+        self.set_power(current_power)
+
+    def add_power(self):
+        self.powers_amount += 1
+        self.current_powers = Interface.powers[:self.powers_amount]
+        self.load_inventory()
+
+    def load_inventory(self):
+        for solid in self.solids:
+            solid.kill()
+        self.solids = list()
+
+        font = pygame.font.Font("data/fonts/SatyrSP.otf", self.font_size)
+
+        self.inventory.image.fill((0, 0, 0, 0))
         for i, power in enumerate(self.current_powers):
             rect = (i * (self.slot_size + self.spacing) + self.line_width, self.line_width,
                     self.slot_size - self.line_width, self.slot_size - self.line_width)
+            pygame.draw.rect(self.inventory.image, DARK_COLOR, rect, 0, 10)
             pygame.draw.rect(self.inventory.image, power[0], rect, self.line_width, 10)
             number = font.render(str(i + 1), True, power[0])
             self.inventory.image.blit(number, (rect[0] + (rect[2] - number.get_size()[0]) // 2,
                                                self.slot_size + self.line_width))
             self.solids.append(PlatonicSolid(self, self.inventory.rect.x + rect[0] + self.line_width,
                                              self.inventory.rect.y + rect[1] + self.line_width,
-                                             rect[2] - self.line_width * 2, i))
-
-        self.current_power = current_power
-        self.set_power(current_power)
+                                             rect[2] - self.line_width * 2, i, False))
 
     def update(self):
         self.health = self.player.health
@@ -79,9 +94,9 @@ class Interface(pygame.sprite.Group):
             self.health = 0
         self.health_bar.image.fill((0, 0, 0, 0))
         rect = (self.line_width, self.line_width, 900 - self.line_width, 75 - self.line_width)
-        part_rect = (self.line_width, self.line_width,
-                     900 * self.health / self.max_health - self.line_width, 75 - self.line_width)
-        pygame.draw.rect(self.health_bar.image, DARK_COLOR, rect, self.line_width, 10)
+        part_rect = (self.line_width * 2, self.line_width,
+                     (900 - self.line_width * 2) * self.health / self.max_health - self.line_width, 75 - self.line_width)
+        pygame.draw.rect(self.health_bar.image, DARK_COLOR, rect, 0, 10)
         if self.health > 0:
             pygame.draw.rect(self.health_bar.image, self.color, part_rect, 0, 10)
         pygame.draw.rect(self.health_bar.image, self.color, rect, self.line_width, 10)

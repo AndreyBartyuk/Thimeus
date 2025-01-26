@@ -1,9 +1,8 @@
 from Camera import Camera
 from Interface import Interface
 from Projectile import Projectile
-from ThimeusConstants import (TILE_SIZE, CHARACTER_HEIGHT, COLORS, ENEMY_SETS, SWORD, HOOK, GUN,
-                              STAFF, DARK_COLOR, FPS, MAIN_MENU_MODE, STORY_MODE, ARCADE_MODE,
-                              LINE_WIDTH)
+from ThimeusConstants import (TILE_SIZE, CHARACTER_HEIGHT, COLORS, ENEMY_SETS, DARK_COLOR,
+                              FPS, MAIN_MENU_MODE, STORY_MODE, ARCADE_MODE)
 from ThimeusFunctions import load_image
 from PlatonicSolid import PlatonicSolid
 from Tile import Tile
@@ -13,13 +12,15 @@ from Liquid import Liquid
 from Door import Door
 from Player import Player
 from Enemy import Enemy
-from Weapon import Weapon
 import pygame
+import random
 import json
+import sys
 
 
 class Game:
-    story_mode_levels = [f"level_{i + 1}.txt" for i in range(30)]
+    story_mode_levels = [f"level_{i + 1}.txt" for i in range(20)]
+    arcade_mode_levels = [f"level_{i + 1}.txt" for i in range(20) if (i + 1) % 4 != 0]
 
     def __init__(self, screen):
         self.screen = screen
@@ -35,11 +36,11 @@ class Game:
         self.all_sprites = [self.walls, self.ladders, self.interactable,
                             self.obstacles, self.decor, self.projectiles]
 
+        self.save_path = "data/save.json"
         self.font_path = "data/fonts/SatyrSP.otf"
         self.game_mode = MAIN_MENU_MODE
         self.levels = None
         self.camera = None
-        self.current_level = 0
         self.clock = pygame.time.Clock()
 
         self.interface = pygame.sprite.Group()
@@ -48,30 +49,27 @@ class Game:
         self.game_over_label.image = pygame.font.Font(self.font_path,
                                                       260).render("Игра окончена!", True, "white")
         image_width = self.game_over_label.image.get_size()[0]
-        self.game_over_label.rect = self.game_over_label.image.get_rect().move((self.width -
-                                                                                image_width) // 2, -220)
+        self.game_over_label.rect = self.game_over_label.image.get_rect().move((self.width - image_width) // 2, -220)
 
         self.results_label = pygame.sprite.Sprite(self.interface)
 
-        btn_size = 150
+        self.btn_size = 150
 
         self.reload_button = pygame.sprite.Sprite(self.interface)
-        self.reload_button.image = pygame.Surface((btn_size, btn_size), pygame.SRCALPHA, 32)
-        button_x = (self.width - (btn_size * 2 + btn_size // 2)) // 2
+        self.reload_button.image = pygame.Surface((self.btn_size, self.btn_size), pygame.SRCALPHA, 32)
+        button_x = (self.width - (self.btn_size * 2 + self.btn_size // 2)) // 2
         self.reload_button.rect = self.reload_button.image.get_rect().move(button_x, 860)
-        pygame.draw.rect(self.reload_button.image, "white", (0, 0, btn_size, btn_size),
-                         LINE_WIDTH * 2, 10)
+        pygame.draw.rect(self.reload_button.image, "white", (0, 0, self.btn_size, self.btn_size), 10, 10)
         self.reload_button.image.blit(pygame.transform.smoothscale(load_image("return.png"),
-                                                                   (btn_size, btn_size)), (0, 0))
+                                                                   (self.btn_size, self.btn_size)), (0, 0))
 
         self.main_menu_button = pygame.sprite.Sprite(self.interface)
-        self.main_menu_button.image = pygame.Surface((btn_size, btn_size), pygame.SRCALPHA, 32)
-        button_x = self.reload_button.rect.x + btn_size + btn_size // 2
+        self.main_menu_button.image = pygame.Surface((self.btn_size, self.btn_size), pygame.SRCALPHA, 32)
+        button_x = self.reload_button.rect.x + self.btn_size + self.btn_size // 2
         self.main_menu_button.rect = self.main_menu_button.image.get_rect().move(button_x, 860)
-        pygame.draw.rect(self.main_menu_button.image, "white", (0, 0, btn_size, btn_size),
-                         LINE_WIDTH * 2, 10)
+        pygame.draw.rect(self.main_menu_button.image, "white", (0, 0, self.btn_size, self.btn_size), 10, 10)
         self.main_menu_button.image.blit(pygame.transform.smoothscale(load_image("home.png"),
-                                                                      (btn_size, btn_size)), (0, 0))
+                                                                      (self.btn_size, self.btn_size)), (0, 0))
 
         Liquid.load_images()
         Projectile.load_images()
@@ -103,24 +101,26 @@ class Game:
     def main_menu(self):
         self.game_mode = STORY_MODE
 
-
     def game_loop(self):
+        with open(self.save_path) as file:
+            save_data = json.load(file)
+
+        if self.game_mode == STORY_MODE:
+            level_data = save_data["story_mode_save"]
+            current_level = level_data["current_level"]
+            if current_level >= len(Game.story_mode_levels):
+                self.fade_transition(self.screen.copy())
+                return self.story_mode_end()
+            filename = Game.story_mode_levels[current_level]
+        else:
+            level_data = save_data["arcade_mode_save"]
+            filename = random.choice(Game.arcade_mode_levels)
+
         self.game_over_label.rect.y = -220
         self.reload_button.image.set_alpha(0)
         self.main_menu_button.image.set_alpha(0)
 
-        with open("data/save.json") as file:
-            save_data = json.load(file)
-
-        level_data = None
-        if self.game_mode == STORY_MODE:
-            self.levels = Game.story_mode_levels
-            level_data = save_data["story_mode_save"]
-            self.current_level = level_data["current_level"]
-        elif self.game_mode == ARCADE_MODE:
-            level_data = save_data["arcade_mode_save"]
-
-        player, exit_door, interface = self.load_level(self.levels[self.current_level])
+        player, exit_door, interface = self.load_level(filename)
         enemies = list(filter(lambda x: isinstance(x, Enemy), self.all_sprites))
         defeat = False
         running = True
@@ -128,19 +128,32 @@ class Game:
         fade_surface = pygame.Surface(pygame.display.get_window_size())
         fade_surface.fill("black")
         fade_alpha = 255
-        faded = False
 
         while running:
             for event in pygame.event.get():
-                match event.type:
-                    case pygame.QUIT:
+                if event.type == pygame.QUIT:
+                    running = False
+                    sys.exit()
+                elif defeat and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if self.reload_button.rect.collidepoint(event.pos):
                         running = False
-                        pygame.quit()
+                    elif self.main_menu_button.rect.collidepoint(event.pos):
+                        self.game_mode = MAIN_MENU_MODE
+                        running = False
+
+            solid_found = False
+            for sprite in self.interactable:
+                if isinstance(sprite, PlatonicSolid):
+                    solid_found = True
+                    break
+            for sprite in self.interactable:
+                if not isinstance(sprite, PlatonicSolid):
+                    sprite.interactable = not solid_found
+
             self.screen.fill(DARK_COLOR)
             for group in self.all_sprites:
                 group.update()
                 group.draw(self.screen)
-            self.clock.tick(FPS)
 
             if exit_door.exited:
                 running = False
@@ -148,7 +161,8 @@ class Game:
             elif player.dead and not defeat:
                 defeat = True
                 enemies_killed = level_data["enemies_killed"] + len([1 for group in enemies if group.dead])
-                results_str = [f"Комнат пройдено: {self.current_level + 1}",
+                levels_completed = level_data["levels_completed"]
+                results_str = [f"Комнат пройдено: {levels_completed}",
                                f"Врагов побеждено: {enemies_killed}"]
                 results = list(map(lambda x: pygame.font.Font(self.font_path,
                                                               100).render(x, True, "white"), results_str))
@@ -159,8 +173,7 @@ class Game:
                 for i, label in enumerate(results):
                     self.results_label.image.blit(label, (0, i * label_h))
                 image_w = self.results_label.image.get_size()[0]
-                self.results_label.rect = self.results_label.image.get_rect().move((self.width -
-                                                                                    image_w) // 2, 560)
+                self.results_label.rect = self.results_label.image.get_rect().move((self.width - image_w) // 2, 560)
                 self.results_label.image.set_alpha(0)
 
             if defeat:
@@ -179,44 +192,47 @@ class Game:
                 self.screen.blit(fade_surface, (0, 0))
                 self.interface.draw(self.screen)
 
-                if pygame.mouse.get_pressed()[0]:
-                    if self.reload_button.rect.collidepoint(pygame.mouse.get_pos()):
-                        running = False
-                    elif self.main_menu_button.rect.collidepoint(pygame.mouse.get_pos()):
-                        self.game_mode = MAIN_MENU_MODE
-                        running = False
-
-            if not faded and fade_alpha > 0:
-                fade_alpha -= 14 # 10
+            if fade_alpha > 0 and not defeat:
+                fade_alpha -= 14
                 fade_surface.set_alpha(fade_alpha)
                 self.screen.blit(fade_surface, (0, 0))
-            else:
-                faded = True
 
             fps = pygame.font.Font(self.font_path, 150).render(str(round(self.clock.get_fps())), True, "white")
             self.screen.blit(fps, (self.width - 170, 50))
 
             pygame.display.flip()
+            self.clock.tick(FPS)
+
         if not defeat:
-            print()
-            if self.game_mode == STORY_MODE:
-                save_data["story_mode_save"]["current_health"] = player.health
-                save_data["story_mode_save"]["current_power"] = interface.current_power
-                save_data["story_mode_save"]["current_level"] += 1
-                save_data["story_mode_save"]["enemies_killed"] += len([1 for group in enemies if group.dead])
-            elif self.game_mode == ARCADE_MODE:
-                pass
-            with open("data/save.json", "w") as file:
-                json.dump(save_data, file, indent=2)
+            self.save_data(interface, enemies)
+
         self.fade_transition(self.screen.copy())
 
+    def save_data(self, interface, enemies):
+        with open(self.save_path) as file:
+            save_data = json.load(file)
+        if self.game_mode == STORY_MODE:
+            save_data["story_mode_save"]["current_health"] = 100
+            save_data["story_mode_save"]["current_power"] = interface.current_power
+            save_data["story_mode_save"]["current_level"] += 1
+            save_data["story_mode_save"]["powers_amount"] = interface.powers_amount
+            save_data["story_mode_save"]["enemies_killed"] += len([1 for group in enemies if group.dead])
+            save_data["story_mode_save"]["levels_completed"] += 1
+        elif self.game_mode == ARCADE_MODE:
+            save_data["arcade_mode_save"]["current_health"] = 100
+            save_data["arcade_mode_save"]["current_power"] = interface.current_power
+            save_data["arcade_mode_save"]["enemies_killed"] += len([1 for group in enemies if group.dead])
+            save_data["arcade_mode_save"]["levels_completed"] += 1
+        with open(self.save_path, "w") as file:
+            json.dump(save_data, file, indent=2)
 
     def load_level(self, filename):
         self.clear_all_sprites()
 
         with open(f"data/levels/{filename}", "r", encoding="utf-8") as file:
             level = file.read().split("\n")
-        color = COLORS[level[0]]
+
+        color = COLORS[level[0]] if self.game_mode == STORY_MODE else random.choice(list(COLORS.values())[1:])
         level_map = level[1:]
         map_width = len(level_map[0])
         map_height = len(level_map)
@@ -242,8 +258,10 @@ class Game:
                             neighbours.append(False)
                     Tile(walls, x * TILE_SIZE, y * TILE_SIZE, neighbours, color)
                 elif tile in ENEMY_SETS:
+                    enemy_set = (ENEMY_SETS[tile] if self.game_mode == STORY_MODE
+                                 else list(ENEMY_SETS.values())[list(COLORS.values())[1:].index(color)])
                     enemy = Enemy(x * TILE_SIZE + (TILE_SIZE - CHARACTER_HEIGHT // 3) // 2,
-                                  y * TILE_SIZE, CHARACTER_HEIGHT, *ENEMY_SETS[tile], self.all_sprites)
+                                  y * TILE_SIZE, CHARACTER_HEIGHT, *enemy_set, self.all_sprites)
                     self.all_sprites.append(enemy)
                 elif tile == "@":
                     player = Player(x * TILE_SIZE + (TILE_SIZE - CHARACTER_HEIGHT // 3) // 2,
@@ -260,11 +278,9 @@ class Game:
                         if level_map[y - 1][x] == "|":
                             neighbours[1] = True
                     Ladder(ladders, x * TILE_SIZE, y * TILE_SIZE, color, *neighbours)
-                elif tile == "^":
-                    faced_down = False
-                    if 0 <= y - 1 < map_height and level_map[y - 1][x] == "#":
-                        faced_down = True
-                    Spike(obstacles, x * TILE_SIZE, y * TILE_SIZE, faced_down, color)
+                elif tile in ["^", "<", "v", ">"]:
+                    direction = ["^", "<", "v", ">"].index(tile)
+                    Spike(obstacles, x * TILE_SIZE, y * TILE_SIZE, direction, color)
                 elif tile == "~":
                     up_free = True
                     if 0 <= y - 1 < map_height:
@@ -274,13 +290,13 @@ class Game:
                 elif tile == "E":
                     exit_door = Door(interactable, x * TILE_SIZE, y * TILE_SIZE, color, True)
                 elif tile.isdigit():
-                    PlatonicSolid(interactable, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, tile)
+                    PlatonicSolid(interactable, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, tile, True)
         for group in self.all_sprites:
             if isinstance(group, Enemy):
                 group.set_target(player)
         self.camera.set_target()
 
-        with open("data/save.json") as file:
+        with open(self.save_path) as file:
             save_data = json.load(file)
 
         level_data = None
@@ -299,4 +315,75 @@ class Game:
         interface = Interface(player, powers_amount, current_power, self.all_sprites)
         self.all_sprites.append(interface)
         return player, exit_door, interface
+
+    def story_mode_end(self):
+        with open(self.save_path) as file:
+            save_data = json.load(file)
+        save_data["story_mode_save"]["current_health"] = 100
+        save_data["story_mode_save"]["current_power"] = 0
+        save_data["story_mode_save"]["current_level"] = 0
+        save_data["story_mode_save"]["powers_amount"] = 1
+        save_data["story_mode_save"]["enemies_killed"] = 0
+        save_data["story_mode_save"]["levels_completed"] = 0
+        with open(self.save_path, "w") as file:
+            json.dump(save_data, file, indent=2)
+
+        end_group = pygame.sprite.Group()
+
+        andrey = pygame.sprite.Sprite(end_group)
+        andrey.image = pygame.transform.smoothscale_by(load_image("andrey_.png"), 0.5)
+        andrey.rect = andrey.image.get_rect()
+        andrey.rect.bottomleft = self.screen.get_rect().bottomleft
+
+        artyom = pygame.sprite.Sprite(end_group)
+        artyom.image = pygame.transform.smoothscale_by(load_image("artyom_.png"), 0.5)
+        artyom.rect = artyom.image.get_rect()
+        artyom.rect.bottomright = self.screen.get_rect().bottomright
+
+        spacing = 100
+
+        end_label = pygame.sprite.Sprite(end_group)
+        end_strings = ["Режим Аркады теперь", "доступен в главном меню!"]
+        results = list(map(lambda x: pygame.font.Font(self.font_path, 100).render(x, True, "white"), end_strings))
+        label_w = max(map(lambda x: x.get_size()[0], results))
+        label_h = results[0].get_size()[1]
+        end_label.image = pygame.Surface((label_w, label_h * len(end_strings)), pygame.SRCALPHA, 32)
+        for i, label in enumerate(results):
+            end_label.image.blit(label, ((label_w - label.get_size()[0]) // 2, i * label_h))
+        image_w, image_h = end_label.image.get_size()
+        end_label.rect = end_label.image.get_rect().move((self.width - image_w) // 2, (self.height - image_h) // 2)
+
+        thank_label = pygame.sprite.Sprite(end_group)
+        thank_label.image = pygame.font.Font(self.font_path, 250).render("Спасибо за игру!", True, "white")
+        thank_label.rect = thank_label.image.get_rect().move((self.width - thank_label.image.get_width()) // 2, 0)
+        thank_label.rect.bottom = end_label.rect.top - spacing
+
+        main_menu_button = pygame.sprite.Sprite(end_group)
+        main_menu_button.image = self.main_menu_button.image.copy()
+        main_menu_button.image.set_alpha(255)
+        main_menu_button.rect = main_menu_button.image.get_rect().move((self.width - self.btn_size) // 2, 0)
+        main_menu_button.rect.top = end_label.rect.bottom + spacing
+
+        fade_surface = pygame.Surface(pygame.display.get_window_size())
+        fade_surface.fill("black")
+        fade_alpha = 255
+
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    sys.exit()
+
+            self.screen.fill(DARK_COLOR)
+            end_group.update()
+            end_group.draw(self.screen)
+
+            if fade_alpha > 0:
+                fade_alpha -= 14
+                fade_surface.set_alpha(fade_alpha)
+                self.screen.blit(fade_surface, (0, 0))
+
+            pygame.display.flip()
+            self.clock.tick(FPS)
 

@@ -20,6 +20,7 @@ class Door(pygame.sprite.Sprite):
                                       (TILE_SIZE, TILE_SIZE))
         self.image.blit(icon, (0, TILE_SIZE))
         self.exited = False
+        self.interactable = True
 
-    def interact(self):
+    def interact(self, *args):
         self.exited = True

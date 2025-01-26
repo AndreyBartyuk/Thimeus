@@ -1,11 +1,11 @@
 {
   "story_mode_save": {
     "current_health": 100,
-    "current_power": 4,
-    "current_level": 0,
-    "powers_amount": 5,
-    "enemies_killed": 36,
-    "levels_completed": 0
+    "current_power": 1,
+    "current_level": 4,
+    "powers_amount": 2,
+    "enemies_killed": 5,
+    "levels_completed": 4
   },
   "arcade_mode_save": {
     "current_health": 100,

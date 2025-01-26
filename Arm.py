@@ -150,7 +150,7 @@ class Arm(pygame.sprite.Sprite):
         pos = self.get_rotated_projectile_pos()
         damage = self.weapon.damage
         if self.weapon.type == SWORD:
-            Projectile(self.projectiles_group, pos[0], pos[1], 0, self.angle, SWORD, damage,
+            Projectile(self.projectiles_group, pos[0], pos[1], 5, self.angle, SWORD, damage,
                        self.is_player, self.all_sprites, flip=not bool(self.type))
         elif self.weapon.type == AXE:
             Projectile(self.projectiles_group, pos[0], pos[1], 3, self.angle, AXE, damage,
