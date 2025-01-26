@@ -50,23 +50,23 @@ class Game:
                                                       260).render("Игра окончена!", True, "white")
         image_width = self.game_over_label.image.get_size()[0]
         self.game_over_label.rect = self.game_over_label.image.get_rect().move((self.width - image_width) // 2, -220)
+        self.needed_game_over_label_y = -220
 
         self.results_label = pygame.sprite.Sprite(self.interface)
 
         self.btn_size = 150
+        self.spacing = 100
 
         self.reload_button = pygame.sprite.Sprite(self.interface)
         self.reload_button.image = pygame.Surface((self.btn_size, self.btn_size), pygame.SRCALPHA, 32)
-        button_x = (self.width - (self.btn_size * 2 + self.btn_size // 2)) // 2
-        self.reload_button.rect = self.reload_button.image.get_rect().move(button_x, 860)
+        self.reload_button.rect = self.reload_button.image.get_rect()
         pygame.draw.rect(self.reload_button.image, "white", (0, 0, self.btn_size, self.btn_size), 10, 10)
         self.reload_button.image.blit(pygame.transform.smoothscale(load_image("return.png"),
                                                                    (self.btn_size, self.btn_size)), (0, 0))
 
         self.main_menu_button = pygame.sprite.Sprite(self.interface)
         self.main_menu_button.image = pygame.Surface((self.btn_size, self.btn_size), pygame.SRCALPHA, 32)
-        button_x = self.reload_button.rect.x + self.btn_size + self.btn_size // 2
-        self.main_menu_button.rect = self.main_menu_button.image.get_rect().move(button_x, 860)
+        self.main_menu_button.rect = self.main_menu_button.image.get_rect()
         pygame.draw.rect(self.main_menu_button.image, "white", (0, 0, self.btn_size, self.btn_size), 10, 10)
         self.main_menu_button.image.blit(pygame.transform.smoothscale(load_image("home.png"),
                                                                       (self.btn_size, self.btn_size)), (0, 0))
@@ -135,11 +135,15 @@ class Game:
                     running = False
                     sys.exit()
                 elif defeat and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    if self.reload_button.rect.collidepoint(event.pos):
+                    if self.game_mode == STORY_MODE and self.reload_button.rect.collidepoint(event.pos):
                         running = False
                     elif self.main_menu_button.rect.collidepoint(event.pos):
                         self.game_mode = MAIN_MENU_MODE
                         running = False
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+                    self.fade_transition(self.screen.copy())
+                    self.game_mode = MAIN_MENU_MODE
+                    return None
 
             solid_found = False
             for sprite in self.interactable:
@@ -160,33 +164,74 @@ class Game:
 
             elif player.dead and not defeat:
                 defeat = True
+
                 enemies_killed = level_data["enemies_killed"] + len([1 for group in enemies if group.dead])
                 levels_completed = level_data["levels_completed"]
                 results_str = [f"Комнат пройдено: {levels_completed}",
                                f"Врагов побеждено: {enemies_killed}"]
-                results = list(map(lambda x: pygame.font.Font(self.font_path,
-                                                              100).render(x, True, "white"), results_str))
+
+                if self.game_mode == ARCADE_MODE:
+                    points = levels_completed * enemies_killed
+                    results_str.append(f"Очки: {points}")
+
+                    with open(self.save_path) as file:
+                        save_data = json.load(file)
+                    record = False
+                    if levels_completed > save_data["arcade_mode_record"]["levels"]:
+                        save_data["arcade_mode_record"]["levels"] = levels_completed
+                        results_str[0] += "!"
+                        record = True
+                    if enemies_killed > save_data["arcade_mode_record"]["enemies"]:
+                        save_data["arcade_mode_record"]["enemies"] = enemies_killed
+                        results_str[1] += "!"
+                        record = True
+                    if points > save_data["arcade_mode_record"]["points"]:
+                        save_data["arcade_mode_record"]["points"] = points
+                        results_str[2] += "!"
+                        record = True
+                    save_data["arcade_mode_save"]["current_health"] = 100
+                    save_data["arcade_mode_save"]["current_power"] = 0
+                    save_data["arcade_mode_save"]["enemies_killed"] = 0
+                    save_data["arcade_mode_save"]["levels_completed"] = 0
+                    if record:
+                        results_str.append("Новый рекорд!")
+                    with open(self.save_path, "w") as file:
+                        json.dump(save_data, file, indent=2)
+
+                font = pygame.font.Font(self.font_path, 100)
+                results = [font.render(line, True, COLORS["red"] if "!" in line else "white") for line in results_str]
                 label_w = max(map(lambda x: x.get_size()[0], results))
                 label_h = results[0].get_size()[1]
                 self.results_label.image = pygame.Surface((label_w, label_h * len(results_str)),
                                                           pygame.SRCALPHA, 32)
                 for i, label in enumerate(results):
                     self.results_label.image.blit(label, (0, i * label_h))
-                image_w = self.results_label.image.get_size()[0]
-                self.results_label.rect = self.results_label.image.get_rect().move((self.width - image_w) // 2, 560)
+                self.results_label.rect = self.results_label.image.get_rect()
+                self.results_label.rect.center = self.screen.get_rect().center
                 self.results_label.image.set_alpha(0)
+
+                self.needed_game_over_label_y = self.results_label.rect.top - self.spacing - self.game_over_label.rect.h
+
+                self.reload_button.rect.top = self.main_menu_button.rect.top = (self.results_label.rect.bottom +
+                                                                                self.spacing)
+                if self.game_mode == STORY_MODE:
+                    self.reload_button.rect.right = self.screen.get_rect().centerx - self.spacing // 2
+                    self.main_menu_button.rect.left = self.screen.get_rect().centerx + self.spacing // 2
+                else:
+                    self.main_menu_button.rect.centerx = self.screen.get_rect().centerx
 
             if defeat:
                 if fade_alpha < 220:
                     fade_alpha += 7 # 5
                     fade_alpha = fade_alpha if fade_alpha < 220 else 220
-                if self.game_over_label.rect.y < 200:
+                if self.game_over_label.rect.y < self.needed_game_over_label_y:
                     self.game_over_label.rect.y += 14 # 10
-                    if self.game_over_label.rect.y > 200:
-                        self.game_over_label.rect.y = 200
+                    if self.game_over_label.rect.y > self.needed_game_over_label_y:
+                        self.game_over_label.rect.y = self.needed_game_over_label_y
                 if self.results_label.image.get_alpha() < 255:
                     self.results_label.image.set_alpha(self.results_label.image.get_alpha() + 7) # 5
-                    self.reload_button.image.set_alpha(self.reload_button.image.get_alpha() + 7)
+                    if self.game_mode == STORY_MODE:
+                        self.reload_button.image.set_alpha(self.reload_button.image.get_alpha() + 7)
                     self.main_menu_button.image.set_alpha(self.main_menu_button.image.get_alpha() + 7)
                 fade_surface.set_alpha(fade_alpha)
                 self.screen.blit(fade_surface, (0, 0))
@@ -325,6 +370,7 @@ class Game:
         save_data["story_mode_save"]["powers_amount"] = 1
         save_data["story_mode_save"]["enemies_killed"] = 0
         save_data["story_mode_save"]["levels_completed"] = 0
+        save_data["arcade_mode_unlocked"] = True
         with open(self.save_path, "w") as file:
             json.dump(save_data, file, indent=2)
 
@@ -374,6 +420,10 @@ class Game:
                 if event.type == pygame.QUIT:
                     running = False
                     sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    if main_menu_button.rect.collidepoint(pygame.mouse.get_pos()):
+                        self.game_mode = MAIN_MENU_MODE
+                        running = False
 
             self.screen.fill(DARK_COLOR)
             end_group.update()

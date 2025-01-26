@@ -45,7 +45,7 @@ class Weapon:
 
                              [(self.w / 12 * 5, self.l / 2), (self.w / 3 * 2, self.l / 2),
                               (self.w / 4 * 3, self.l), (self.w / 2, self.l)]]
-            self.damage = 2
+            self.damage = 4
 
         elif self.type == AXE:
             self.duration = 7 # 10
@@ -81,7 +81,7 @@ class Weapon:
 
                              [(self.w / 4 * 0.8, self.l / 3), (self.w / 4 * 3.2, self.l / 3),
                               (self.w / 2, self.l / 9 * 4)]]
-            self.damage = 20
+            self.damage = 15
 
         elif self.type == HOOK:
             self.duration = 11 # 15

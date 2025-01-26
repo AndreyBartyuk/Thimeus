@@ -165,7 +165,7 @@ class Arm(pygame.sprite.Sprite):
         pos = self.get_rotated_projectile_pos()
         damage = self.weapon.damage
         if self.weapon.type == FLAMETHROWER:
-            Projectile(self.projectiles_group, pos[0], pos[1], 10, self.angle + random.randrange(-10, 11, 5),
+            Projectile(self.projectiles_group, pos[0], pos[1], 15, self.angle + random.randrange(-12, 13, 3),
                        FLAMETHROWER, damage, self.is_player, self.all_sprites)
         elif self.weapon.type == STAFF:
             for i in range(-2, 3):
