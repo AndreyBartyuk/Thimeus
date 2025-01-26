@@ -1,3 +1,5 @@
+import sys
+
 from Camera import Camera
 from Interface import Interface
 from Projectile import Projectile
@@ -14,7 +16,7 @@ from Door import Door
 from Player import Player
 from Enemy import Enemy
 from Weapon import Weapon
-import pygame
+import pygame, gif_pygame
 
 
 class Game:
@@ -100,12 +102,57 @@ class Game:
             group.empty()
 
     def main_menu(self):
-        self.current_level = 0
-        self.game_mode = STORY_MODE
-        if self.game_mode == STORY_MODE:
-            self.levels = Game.story_mode_levels
-        elif self.game_mode == ARCADE_MODE:
-            pass
+        self.screen.fill(DARK_COLOR)
+        self.main_text = pygame.font.Font(self.font_path, 230).render("Thimeus", True, "white")
+        self.screen.blit(self.main_text, ((self.width - self.main_text.get_size()[0]) // 2, 85))
+
+        self.story_mode_button = pygame.image.load("data/images/story_mode_button.png")
+        self.story_mode_button = pygame.transform.scale(self.story_mode_button, (400, 120))
+        story_x = (self.width - self.story_mode_button.get_size()[0]) // 2
+        story_y = 480
+        self.screen.blit(self.story_mode_button, (story_x, story_y))
+
+        self.arcade_mode_button = pygame.image.load("data/images/arcade_mode_button.png")
+        self.arcade_mode_button = pygame.transform.scale(self.arcade_mode_button, (400, 120))
+        arcade_x = (self.width - self.arcade_mode_button.get_size()[0]) // 2
+        arcade_y = 630
+        self.screen.blit(self.arcade_mode_button, (arcade_x, arcade_y))
+
+        self.exit_button = pygame.image.load("data/images/menu_exit_button.png")
+        self.exit_button = pygame.transform.scale(self.exit_button, (400, 120))
+        exit_x = (self.width - self.exit_button.get_size()[0]) // 2
+        exit_y = 780
+        self.screen.blit(self.exit_button, (exit_x, exit_y))
+
+        first = gif_pygame.load("data/images/first.gif")
+        third = gif_pygame.load("data/images/third.gif")
+        fourth = gif_pygame.load("data/images/fourth.gif")
+        fifth = gif_pygame.load("data/images/fifth.gif")
+
+
+        while self.game_mode == MAIN_MENU_MODE:
+            first.render(self.screen, (300, 800))
+            third.render(self.screen, (self.width - 260, 200))
+            fourth.render(self.screen, (self.width - 500, 800))
+            fifth.render(self.screen, (60, 200))
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = event.pos
+                    print(x, y)
+                    if story_x <= x <= story_x + 400 and story_y <= y <= story_y + 120:
+                        self.levels = Game.story_mode_levels
+                        self.game_mode = STORY_MODE
+                    if arcade_x <= x <= arcade_x + 400 and arcade_y <= y <= arcade_y + 120:
+                        # random level + есть баг, что если сначала выбрать story mode, выйти в меню и выбрать arcade mode,
+                        # то зайдет обратно в story mode, связано это с выбором уровня
+                        self.game_mode = ARCADE_MODE
+                    if exit_x <= x <= exit_x + 400 and exit_y <= y <= exit_y + 120:
+                        sys.exit()
+            pygame.display.flip()
+        self.fade_transition(self.screen.copy())
+
 
     def game_loop(self):
         self.game_over_label.rect.y = -220
@@ -127,7 +174,7 @@ class Game:
                 match event.type:
                     case pygame.QUIT:
                         running = False
-                        pygame.quit()
+                        sys.exit()
             self.screen.fill(DARK_COLOR)
             for group in self.all_sprites:
                 group.update()
