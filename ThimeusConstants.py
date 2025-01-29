@@ -6,6 +6,9 @@ FPS = 70
 MAIN_MENU_MODE = b"main_menu_mode"
 STORY_MODE = b"story_mode"
 ARCADE_MODE = b"arcade_mode"
+RECORD_DISPLAY_MODE = b"record_display_mode"
+INFO_DISPLAY_MODE = b"info_mode"
+CONTROLS_DISPLAY_MODE = b"controls_display_mode"
 
 DARK_COLOR = "#151515"
 COLORS = {"red": "#DE324C", "orange": "#F4895F", "yellow": "#F8E16F",

@@ -79,10 +79,12 @@ class Player(Human):
 
         interactions = pygame.sprite.spritecollide(self.hit_box, self.interactable, False)
         if interactions:
-            self.interact_button.image = self.key_r_image.copy()
-            if keys[pygame.K_r]:
-                for sprite in interactions:
-                    sprite.interact()
+            if any([sprite.interactable for sprite in interactions]):
+                self.interact_button.image = self.key_r_image.copy()
+                if keys[pygame.K_r]:
+                    for sprite in interactions:
+                        if sprite.interactable:
+                            sprite.interact(self.all_sprites)
         else:
             self.interact_button.image.fill((0, 0, 0, 0))
 

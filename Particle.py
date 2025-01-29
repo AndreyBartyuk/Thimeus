@@ -13,7 +13,7 @@ class Particle(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(x, y)
         self.x_acceleration = x_acceleration
         self.y_acceleration = y_acceleration
-        self.velocity = [0, -15]
+        self.velocity = [0, 0]
 
     def update(self):
         self.velocity[0] += self.x_acceleration

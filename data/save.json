@@ -1,0 +1,22 @@
+{
+  "story_mode_save": {
+    "current_health": 100,
+    "current_power": 0,
+    "current_level": 0,
+    "powers_amount": 1,
+    "enemies_killed": 0,
+    "levels_completed": 0
+  },
+  "arcade_mode_save": {
+    "current_health": 100,
+    "current_power": 0,
+    "enemies_killed": 0,
+    "levels_completed": 0
+  },
+  "arcade_mode_record": {
+    "enemies": 0,
+    "levels": 0,
+    "points": 0
+  },
+  "arcade_mode_unlocked": false
+}

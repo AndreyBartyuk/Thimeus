@@ -22,6 +22,7 @@ class Human(pygame.sprite.Group):
         mask_surface = pygame.Surface((self.w, self.h))
         mask_surface.fill("black")
         self.hit_box.mask = pygame.mask.from_surface(mask_surface)
+        # pygame.draw.rect(self.hit_box.image, "white", (0, 0, *self.hit_box.rect.size), 3, 3)
 
         self.velocity = [0, 0]
         self.gravity = 0.7 # 0.5
@@ -68,10 +69,12 @@ class Human(pygame.sprite.Group):
         self.weapon_delay = 0
         self.current_delay = 0
 
+        self.obstacle_damage = 0.5
         self.max_health = 100
         self.health = 100
         self.dead = False
         self.dashing = False
+        self.hit_by_obstacles = True
 
     def get_events(self):
         pass
@@ -93,6 +96,7 @@ class Human(pygame.sprite.Group):
         self.move(0, self.velocity[1])
         on_ground = False
         collisions = pygame.sprite.spritecollide(self.hit_box, self.walls, False)
+
         for wall in collisions:
             if self.velocity[1] > 0:
                 self.move(0, wall.rect.top - self.hit_box.rect.bottom)
@@ -123,8 +127,9 @@ class Human(pygame.sprite.Group):
         self.legs.speed = self.velocity[0]
 
         # obstacles
-        if pygame.sprite.spritecollide(self.hit_box, self.obstacles, False):
-            self.get_damage(0.5)
+        if self.hit_by_obstacles:
+            if pygame.sprite.spritecollide(self.hit_box, self.obstacles, False):
+                self.get_damage(self.obstacle_damage)
 
         # idle animation
         self.idle_count = (self.idle_count + 1) % self.max_idle_count
