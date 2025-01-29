@@ -51,3 +51,10 @@ def change_color(image, color):
                 image.set_at((x, y), color)
     return image
 
+
+def colors_are_close(color_1, color_2, tolerance=5):
+    for i in range(3):
+        if abs(color_1.rgb[i] - color_2.rgb[i]) > tolerance:
+            return False
+    return True
+

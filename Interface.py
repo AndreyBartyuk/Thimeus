@@ -47,7 +47,7 @@ class Interface(pygame.sprite.Group):
                                                  pygame.SRCALPHA, 32)
         self.power_reload.rect = self.power_reload.image.get_rect().move(self.inventory.rect.right + self.spacing,
                                                                          self.inventory.rect.top + self.line_width)
-        self.power_cooldown = 1000
+        self.power_cooldown = 500
         self.current_power_cooldown = 0
 
         self.pointer = pygame.sprite.Sprite(self)

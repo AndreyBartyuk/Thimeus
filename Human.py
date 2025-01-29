@@ -22,7 +22,7 @@ class Human(pygame.sprite.Group):
         mask_surface = pygame.Surface((self.w, self.h))
         mask_surface.fill("black")
         self.hit_box.mask = pygame.mask.from_surface(mask_surface)
-        pygame.draw.rect(self.hit_box.image, "white", (0, 0, *self.hit_box.rect.size), 3, 3)
+        # pygame.draw.rect(self.hit_box.image, "white", (0, 0, *self.hit_box.rect.size), 3, 3)
 
         self.velocity = [0, 0]
         self.gravity = 0.7 # 0.5

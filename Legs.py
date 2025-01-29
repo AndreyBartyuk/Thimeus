@@ -18,7 +18,7 @@ class Legs(pygame.sprite.Sprite):
     def update(self):
         self.angle = (self.angle + self.speed) % 360
         if self.speed == 0 and self.angle != 0:
-            self.angle -= 5
+            self.angle -= 7
             if self.angle < 0:
                 self.angle = 0
 

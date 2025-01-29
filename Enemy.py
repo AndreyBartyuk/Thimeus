@@ -2,11 +2,10 @@ from ThimeusConstants import MELEE_ATTACK, RANGED_ATTACK
 from Human import Human
 from Weapon import Weapon
 import pygame
-import random
 
 
 class Enemy(Human):
-    def __init__(self, x, y, height, color, weapon, head_sides, all_sprites):
+    def __init__(self, x, y, height, color, weapon, head_sides, level, all_sprites):
         super().__init__(x, y, height, color, False, all_sprites)
         self.set_weapon(Weapon(self.h, weapon))
         self.set_head_sides(head_sides)
@@ -15,14 +14,17 @@ class Enemy(Human):
         self.view_field.image = pygame.Surface((self.h * 10, self.h * 1.5), pygame.SRCALPHA, 32)
         self.view_field.rect = self.view_field.image.get_rect()
         self.view_field.rect.center = self.hit_box.rect.center
-        pygame.draw.rect(self.view_field.image, "white", (0, 0, *self.view_field.rect.size), 3, 3)
+        # pygame.draw.rect(self.view_field.image, "white", (0, 0, *self.view_field.rect.size), 3, 3)
 
         self.target = None
         self.needed_distance = 300 if self.weapon.attack == MELEE_ATTACK else 500
 
-        self.weapon_delay *= 2
-        self.weapon.damage *= 0.5
-        self.max_x_speed *= 0.8
+        self.level = level
+        self.weapon_delay = max(round(self.weapon_delay * 2 - self.level * 0.1 * self.weapon_delay), 1)
+        self.weapon.damage = self.weapon.damage * 0.5 + (self.level * 0.1 * self.weapon.damage)
+        self.max_x_speed = self.max_x_speed * 0.8 + self.level * 0.1 * self.max_x_speed
+        self.max_health = self.max_health + self.level * 0.1 * self.max_health
+        self.health = self.max_health
         self.hit_by_obstacles = False
 
         self.health_bar = pygame.sprite.Sprite(self)
@@ -35,7 +37,7 @@ class Enemy(Human):
         self.touch_point.rect = self.touch_point.image.get_rect()
         self.touch_point.rect.centerx = self.hit_box.rect.centerx
         self.touch_point.rect.bottom = self.hit_box.rect.bottom + 5
-        pygame.draw.rect(self.touch_point.image, "white", (0, 0, *self.touch_point.rect.size), 3, 3)
+        # pygame.draw.rect(self.touch_point.image, "white", (0, 0, *self.touch_point.rect.size), 3, 3)
 
     def set_target(self, target):
         self.target = target
@@ -85,3 +87,6 @@ class Enemy(Human):
                                 self.health_bar.rect.h)
         pygame.draw.rect(self.health_bar.image, self.color, part_rect, 0, 3)
         pygame.draw.rect(self.health_bar.image, self.color, (0, 0, *self.health_bar.rect.size), 4, 3)
+
+        # text = pygame.font.Font("data/fonts/SatyrSP.otf", self.h // 5).render(str(self.level + 1), True, self.color)
+        # pygame.display.get_surface().blit(text, (self.hit_box.rect.centerx, self.hit_box.rect.top - 150))
