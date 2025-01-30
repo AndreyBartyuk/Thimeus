@@ -4,6 +4,7 @@ from Weapon import Weapon
 import pygame
 
 
+# Class of Enemy for the locations
 class Enemy(Human):
     def __init__(self, x, y, height, color, weapon, head_sides, level, all_sprites):
         super().__init__(x, y, height, color, False, all_sprites)
@@ -39,9 +40,11 @@ class Enemy(Human):
         self.touch_point.rect.bottom = self.hit_box.rect.bottom + 5
         # pygame.draw.rect(self.touch_point.image, "white", (0, 0, *self.touch_point.rect.size), 3, 3)
 
+    # Set target for the Enemy
     def set_target(self, target):
         self.target = target
 
+    # Get the events for Enemy behaviour
     def get_events(self):
         distance = ((self.hit_box.rect.x + self.center[0]) -
                     (self.target.hit_box.rect.x + self.target.center[0]))

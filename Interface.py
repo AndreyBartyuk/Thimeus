@@ -5,6 +5,7 @@ import pygame
 import math
 
 
+# Class for game loop interface
 class Interface(pygame.sprite.Group):
     powers = [(COLORS["red"], SWORD, 6),
               (COLORS["orange"], FLAMETHROWER, 3),
@@ -63,11 +64,13 @@ class Interface(pygame.sprite.Group):
         self.current_power = current_power
         self.set_power(current_power)
 
+    # Add power to the Interface
     def add_power(self):
         self.powers_amount += 1
         self.current_powers = Interface.powers[:self.powers_amount]
         self.load_inventory()
 
+    # Load and draw the inventory for the Interface
     def load_inventory(self):
         for solid in self.solids:
             solid.kill()
@@ -88,6 +91,7 @@ class Interface(pygame.sprite.Group):
                                              self.inventory.rect.y + rect[1] + self.line_width,
                                              rect[2] - self.line_width * 2, i, False))
 
+    # Update the state of the Interface
     def update(self):
         self.health = self.player.health
         if self.health < 0:
@@ -134,9 +138,9 @@ class Interface(pygame.sprite.Group):
         for solid in self.solids:
             solid.update()
 
+    # Set current power for the Interface and the Player
     def set_power(self, power):
         self.current_power = power
         self.pointer.image = change_color(self.pointer.image, self.powers[power][0])
         self.color = self.powers[power][0]
         self.player.set_power(*self.powers[power])
-

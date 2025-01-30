@@ -5,6 +5,7 @@ from Weapon import Weapon
 import pygame
 
 
+# Class of the Player for the game loop
 class Player(Human):
     def __init__(self, x, y, height, color, camera, all_sprites):
         super().__init__(x, y, height, color, True, all_sprites)
@@ -23,6 +24,7 @@ class Player(Human):
         self.dash_duration = 10
         self.current_dash_cooldown = 0
 
+    # Get events for the Player behaviour
     def get_events(self):
         keys = pygame.key.get_pressed()
 
@@ -88,11 +90,13 @@ class Player(Human):
         else:
             self.interact_button.image.fill((0, 0, 0, 0))
 
+    # Set current power for the Player
     def set_power(self, color, weapon, head_sides):
         self.set_color(color)
         self.set_weapon(Weapon(self.h, weapon))
         self.set_head_sides(head_sides)
         self.key_r_image = change_color(self.key_r_image, self.color)
 
+    # Move the objects with Camera to imitate Player motion
     def move(self, x_move, y_move):
         self.camera.move(-x_move, -y_move)

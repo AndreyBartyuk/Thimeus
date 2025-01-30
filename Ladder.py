@@ -2,6 +2,7 @@ from ThimeusConstants import LINE_WIDTH, TILE_SIZE
 import pygame
 
 
+# Class of the Ladder for the locations
 class Ladder(pygame.sprite.Sprite):
     def __init__(self, group, x, y, color, bottom, top):
         super().__init__(group)

@@ -6,6 +6,7 @@ import sys
 import math
 
 
+# Load the image
 def load_image(name, color_key=None):
     fullname = os.path.join("data/images", name)
     if not os.path.isfile(fullname):
@@ -22,6 +23,7 @@ def load_image(name, color_key=None):
     return image_
 
 
+# Create a rectangle of falling Particles
 def create_particle_rect(x, y, w, h, amount, color, group):
     for i in range(amount):
         pos = (x + random.randrange(w), y + random.randrange(h))
@@ -29,12 +31,14 @@ def create_particle_rect(x, y, w, h, amount, color, group):
         particle.velocity[1] = -15
 
 
+# Create a trace of moving Particles
 def create_particle_trace(x, y, w, h, amount, direction, color, group):
     for i in range(amount):
         pos = (x + random.randrange(w), y + random.randrange(h))
         Particle(group, *pos, direction * random.randint(10, 15) / 10, random.randint(-1, 1) / 10, color)
 
 
+# Generate a wave image
 def generate_wave(width, height, amplitude, frequency, phase, color):
     surface = pygame.Surface((width, height), pygame.SRCALPHA)
     for x in range(width):
@@ -43,6 +47,7 @@ def generate_wave(width, height, amplitude, frequency, phase, color):
     return surface
 
 
+# Change the color of the image
 def change_color(image, color):
     image = image.copy()
     for x in range(image.get_width()):
@@ -52,9 +57,9 @@ def change_color(image, color):
     return image
 
 
+# Check if two colors are similar
 def colors_are_close(color_1, color_2, tolerance=5):
     for i in range(3):
-        if abs(color_1.rgb[i] - color_2.rgb[i]) > tolerance:
+        if abs(color_1[i] - color_2[i]) > tolerance:
             return False
     return True
-

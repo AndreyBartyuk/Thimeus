@@ -6,6 +6,7 @@ from Head import Head
 import pygame
 
 
+# Class of the Human for inheriting by Player and Enemy classes
 class Human(pygame.sprite.Group):
     def __init__(self, x, y, height, color, is_player, all_sprites):
         super().__init__()
@@ -25,12 +26,12 @@ class Human(pygame.sprite.Group):
         # pygame.draw.rect(self.hit_box.image, "white", (0, 0, *self.hit_box.rect.size), 3, 3)
 
         self.velocity = [0, 0]
-        self.gravity = 0.7 # 0.5
-        self.friction = 1.12 # 0.8
-        self.acceleration = 1.4 # 1
-        self.jump = 19 # 15
-        self.climbing_speed = 8.4 # 6
-        self.max_x_speed = 11.2 + self.friction # 8
+        self.gravity = 0.7
+        self.friction = 1.12
+        self.acceleration = 1.4
+        self.jump = 19
+        self.climbing_speed = 8.4
+        self.max_x_speed = 11.2 + self.friction
         self.dash_speed = 40
         self.standing = False
 
@@ -76,9 +77,11 @@ class Human(pygame.sprite.Group):
         self.dashing = False
         self.hit_by_obstacles = True
 
+    # Get events for Human behaviour
     def get_events(self):
         pass
 
+    # Update the state of the Human
     def update(self):
         for sprite in self:
             sprite.update()
@@ -126,12 +129,12 @@ class Human(pygame.sprite.Group):
         self.head.speed = self.velocity[0] // 2 + 0.1 * self.idle_direction
         self.legs.speed = self.velocity[0]
 
-        # obstacles
+        # Obstacles check
         if self.hit_by_obstacles:
             if pygame.sprite.spritecollide(self.hit_box, self.obstacles, False):
                 self.get_damage(self.obstacle_damage)
 
-        # idle animation
+        # Idle animation
         self.idle_count = (self.idle_count + 1) % self.max_idle_count
         if self.idle_count == 0:
 
@@ -144,13 +147,16 @@ class Human(pygame.sprite.Group):
             if self.idle_move == 2 or self.idle_move == -2:
                 self.idle_direction = -self.idle_direction
 
+    # Move the Human
     def move(self, x_move, y_move):
         for sprite in self:
            sprite.rect = sprite.rect.move(x_move, y_move)
 
+    # Set amount of sides for the Head of the Human
     def set_head_sides(self, amount):
         self.head.sides = amount
 
+    # Set color for the Human
     def set_color(self, color):
         self.color = color
         self.head.color = color
@@ -162,6 +168,7 @@ class Human(pygame.sprite.Group):
         pygame.draw.polygon(self.body.image, DARK_COLOR, points)
         pygame.draw.polygon(self.body.image, self.color, points, LINE_WIDTH)
 
+    # Set the Weapon for the Human
     def set_weapon(self, weapon):
         self.weapon = weapon
         self.left_arm.get_weapon(weapon)
@@ -169,6 +176,7 @@ class Human(pygame.sprite.Group):
         self.current_delay = self.right_arm.current_delay = self.left_arm.current_delay = 0
         self.weapon_delay = weapon.duration + weapon.delay
 
+    # Reduce amount of health points
     def get_damage(self, damage):
         if not self.dead and not self.dashing:
             create_particle_rect(self.hit_box.rect.x, self.hit_box.rect.y,
@@ -177,6 +185,7 @@ class Human(pygame.sprite.Group):
             if self.health <= 0:
                 self.kill()
 
+    # Death of the Human
     def kill(self):
         if not self.dead:
             create_particle_rect(self.hit_box.rect.x, self.hit_box.rect.y,

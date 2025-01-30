@@ -3,6 +3,7 @@ from ThimeusConstants import DARK_COLOR, LINE_WIDTH
 import pygame
 
 
+# Class of Head for the Player and Enemies
 class Head(pygame.sprite.Sprite):
     def __init__(self, group, size, sides, color):
         super().__init__(group)
@@ -15,6 +16,7 @@ class Head(pygame.sprite.Sprite):
         self.radius = size // 2.2
         self.speed = 0
 
+    # Update the state of the Head
     def update(self):
         self.angle += self.speed
         self.image.fill((0, 0, 0, 0))

@@ -2,6 +2,7 @@ import pygame
 import random
 
 
+# Class of the Particle for visual effects
 class Particle(pygame.sprite.Sprite):
     images = [pygame.Surface((i * 3 + 7, i * 3 + 7), pygame.SRCALPHA, 32) for i in range(3)]
 
@@ -15,6 +16,7 @@ class Particle(pygame.sprite.Sprite):
         self.y_acceleration = y_acceleration
         self.velocity = [0, 0]
 
+    # Update the state of the Particle
     def update(self):
         self.velocity[0] += self.x_acceleration
         self.velocity[1] += self.y_acceleration
@@ -22,4 +24,3 @@ class Particle(pygame.sprite.Sprite):
         if not self.rect.colliderect(pygame.Rect(0, 0, *pygame.display.get_window_size())):
             self.kill()
             del self
-

@@ -2,6 +2,7 @@ from ThimeusConstants import TILE_SIZE, DARK_COLOR, LINE_WIDTH
 import pygame
 
 
+# Class of wall Tile for locations
 class Tile(pygame.sprite.Sprite):
     def __init__(self, group, x, y, neighbours, color):
         super().__init__(group)

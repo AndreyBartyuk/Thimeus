@@ -20,6 +20,7 @@ import json
 import sys
 
 
+# Main class of the Game
 class Game:
     story_mode_levels = [f"level_{i + 1}.txt" for i in range(20)]
     arcade_mode_levels = [f"level_{i + 1}.txt" for i in range(20) if (i + 1) % 4 != 0]
@@ -217,18 +218,20 @@ class Game:
         Liquid.load_images()
         Projectile.load_images()
 
+    # Fade transition for changing the scene
     def fade_transition(self, surface):
         fade_surface = pygame.Surface(pygame.display.get_window_size())
         fade_surface.fill(DARK_COLOR)
         fade_alpha = 0
         while fade_alpha < 255:
-            fade_alpha += 14 # 10
+            fade_alpha += 14
             fade_surface.set_alpha(fade_alpha)
             self.screen.blit(surface, (0, 0))
             self.screen.blit(fade_surface, (0, 0))
             pygame.display.flip()
             self.clock.tick(FPS)
 
+    # Main loop of the Game
     def main_loop(self):
         while True:
             if self.game_mode == MAIN_MENU_MODE:
@@ -242,11 +245,13 @@ class Game:
             else:
                 self.game_loop()
 
+    # Clear all sprites from game loop
     def clear_all_sprites(self):
         self.all_sprites = self.all_sprites[:6]
         for group in self.all_sprites:
             group.empty()
 
+    # Main menu loop
     def main_menu(self):
         self.story_btn.rect.centerx = self.screen.get_rect().centerx
         self.story_btn.rect.top = self.screen.get_rect().centery
@@ -315,6 +320,7 @@ class Game:
 
         self.fade_transition(self.screen.copy())
 
+    # Controls display loop
     def controls_display(self):
         self.controls_label.rect.center = self.screen.get_rect().center
 
@@ -355,6 +361,7 @@ class Game:
 
         self.fade_transition(self.screen.copy())
 
+    # Info display loop
     def info_display(self):
         self.info_label.rect.center = self.screen.get_rect().center
 
@@ -398,6 +405,7 @@ class Game:
 
         self.fade_transition(self.screen.copy())
 
+    # Record display loop
     def record_display(self):
         with open(self.save_path) as file:
             save_data = json.load(file)
@@ -474,6 +482,7 @@ class Game:
 
         self.fade_transition(self.screen.copy())
 
+    # Game loop
     def game_loop(self):
         with open(self.save_path) as file:
             save_data = json.load(file)
@@ -624,6 +633,7 @@ class Game:
 
         self.fade_transition(self.screen.copy())
 
+    # Save the changed data
     def save_data(self, interface, enemies):
         with open(self.save_path) as file:
             save_data = json.load(file)
@@ -642,6 +652,7 @@ class Game:
         with open(self.save_path, "w") as file:
             json.dump(save_data, file, indent=2)
 
+    # Load the level for the game loop
     def load_level(self, filename):
         self.clear_all_sprites()
 
@@ -688,7 +699,6 @@ class Game:
                     player = Player(x * TILE_SIZE + (TILE_SIZE - CHARACTER_HEIGHT // 3) // 2,
                                     y * TILE_SIZE, CHARACTER_HEIGHT, COLORS["red"], self.camera,
                                     self.all_sprites)
-                    self.all_sprites.append(player)
                     Door(decor, x * TILE_SIZE, (y - 1) * TILE_SIZE, color, False)
                 elif tile == "|":
                     neighbours = [False, False]
@@ -715,6 +725,7 @@ class Game:
         for group in self.all_sprites:
             if isinstance(group, Enemy):
                 group.set_target(player)
+        self.all_sprites.append(player)
         self.camera.set_target()
 
         level_data = None
@@ -732,8 +743,10 @@ class Game:
 
         interface = Interface(player, powers_amount, current_power, self.all_sprites)
         self.all_sprites.append(interface)
+
         return player, exit_door, interface
 
+    # Story mode end loop
     def story_mode_end(self):
         with open(self.save_path) as file:
             save_data = json.load(file)

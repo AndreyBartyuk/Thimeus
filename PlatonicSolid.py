@@ -5,6 +5,7 @@ from random import randrange
 import pygame
 
 
+# Class of the Platonic Solid for locations and interfaces
 class PlatonicSolid(pygame.sprite.Sprite):
     colors = [COLORS["red"], COLORS["orange"], COLORS["green"],
               COLORS["yellow"], COLORS["blue"], COLORS["purple"]]
@@ -34,11 +35,13 @@ class PlatonicSolid(pygame.sprite.Sprite):
 
         self.interactable = interactable
 
+    # Update the state of the Platonic Solid
     def update(self):
         self.current_frame = (self.current_frame + 1) % self.frame_amount
         self.current_frame = (self.current_frame + 1) % self.frame_amount
         self.image = self.frames[self.current_frame]
 
+    # Player interaction with the Platonic Solid
     def interact(self, *args):
         all_sprites = args[0]
 

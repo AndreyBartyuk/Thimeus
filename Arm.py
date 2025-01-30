@@ -6,6 +6,7 @@ import pygame
 import random
 
 
+# Class of arm for Player and Enemies
 class Arm(pygame.sprite.Sprite):
     def __init__(self, group, length, kind, color, is_player, all_sprites):
         super().__init__(group)
@@ -16,7 +17,7 @@ class Arm(pygame.sprite.Sprite):
         self.w = length // 8
         self.color = pygame.Color(color)
         self.type = kind
-        self.speed = 14 # 10
+        self.speed = 14
 
         self.is_active = False
         self.is_targeting = True
@@ -34,13 +35,16 @@ class Arm(pygame.sprite.Sprite):
         self.targets = list()
         self.mask = pygame.mask.from_surface(self.image)
 
+    # Set the rotation axis for the Arm
     def set_axis(self, x, y):
         self.rect.x = x - self.rect.w // 2
         self.rect.y = y - self.rect.h // 2
 
+    # Set the target for the Arm
     def set_target(self, x, y):
         self.target_pos = (x, y)
 
+    # Update the state of Arm
     def update(self):
         self.image.fill((0, 0, 0, 0))
         axis_x = self.rect.x + self.rect.w // 2
@@ -90,6 +94,7 @@ class Arm(pygame.sprite.Sprite):
         pygame.draw.polygon(self.image, DARK_COLOR, points)
         pygame.draw.polygon(self.image, self.color, points, LINE_WIDTH)
 
+    # Rotate the Arm
     def move(self, angle):
         if self.angle > angle:
             self.angle = self.angle - self.speed
@@ -100,6 +105,7 @@ class Arm(pygame.sprite.Sprite):
             if self.angle > angle:
                 self.angle = angle
 
+    # Get points to draw the Arm
     def get_rotated_arm_points(self, width, height, angle):
         x, y = self.rect.w // 2, self.rect.w // 2
         points = [(0, -height), (0, height), (width, height), (width, -height)]
@@ -110,6 +116,7 @@ class Arm(pygame.sprite.Sprite):
             rotated_points.append((rotated_x + x, rotated_y + y))
         return rotated_points
 
+    # Get points to draw the Weapon
     def get_rotated_weapon_points(self):
         x, y = (self.rect.w // 2, self.rect.w // 2)
         x_move, y_move = self.weapon.blit_point
@@ -132,6 +139,7 @@ class Arm(pygame.sprite.Sprite):
             rotated_polygons.append(polygon)
         return rotated_polygons
 
+    # Get point to launch a Projectile
     def get_rotated_projectile_pos(self):
         x, y = (self.rect.w // 2, self.rect.w // 2)
         point = self.weapon.projectile_pos
@@ -143,6 +151,7 @@ class Arm(pygame.sprite.Sprite):
             rotated_y = point[0] * sin(radians(self.angle)) - point[1] * cos(radians(self.angle))
         return rotated_x + self.rect.x + x, rotated_y + self.rect.y + y
 
+    # Launch a melee attack
     def melee_attack(self):
         if not self.is_active or self.current_delay != 0:
             return None
@@ -159,6 +168,7 @@ class Arm(pygame.sprite.Sprite):
             Projectile(self.projectiles_group, pos[0], pos[1], 15, self.angle, HOOK, damage,
                        self.is_player, self.all_sprites, flip=not bool(self.type))
 
+    # Launch a ranged attack
     def ranged_attack(self):
         if not self.is_active:
             return None
@@ -175,6 +185,7 @@ class Arm(pygame.sprite.Sprite):
             Projectile(self.projectiles_group, pos[0], pos[1], 21, self.angle + random.randrange(-2, 3),
                        GUN, damage, self.is_player, self.all_sprites)
 
+    # Set the Weapon for the Arm
     def get_weapon(self, weapon):
         self.weapon = weapon
         self.delay = weapon.duration

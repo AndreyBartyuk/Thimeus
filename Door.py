@@ -3,6 +3,7 @@ from ThimeusFunctions import change_color, load_image
 import pygame
 
 
+# Class of the Door for the locations
 class Door(pygame.sprite.Sprite):
     def __init__(self, group, x, y, color, is_exit):
         super().__init__(group)
@@ -22,5 +23,6 @@ class Door(pygame.sprite.Sprite):
         self.exited = False
         self.interactable = True
 
+    # Player interaction with the Door
     def interact(self, *args):
         self.exited = True

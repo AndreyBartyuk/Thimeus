@@ -1,13 +1,14 @@
 from ThimeusConstants import MELEE_ATTACK, RANGED_ATTACK, SWORD, FLAMETHROWER, AXE, STAFF, HOOK, GUN
 
 
+# Class of the Weapon for Player and Enemies
 class Weapon:
     def __init__(self, character_height, weapon_type):
         self.type = weapon_type
 
         if self.type == SWORD:
-            self.duration = 14 # 20
-            self.delay = self.duration + 7 # 10
+            self.duration = 14
+            self.delay = self.duration + 7
             self.attack = MELEE_ATTACK
             self.l = character_height
             self.w = self.l / 3
@@ -27,8 +28,8 @@ class Weapon:
             self.damage = 30
 
         elif self.type == FLAMETHROWER:
-            self.duration = 4 # 5
-            self.delay = self.duration + 1 # 2
+            self.duration = 4
+            self.delay = self.duration + 1
             self.attack = RANGED_ATTACK
             self.l = character_height / 5
             self.w = self.l * 4
@@ -48,8 +49,8 @@ class Weapon:
             self.damage = 4
 
         elif self.type == AXE:
-            self.duration = 7 # 10
-            self.delay = self.duration + 36 # 50
+            self.duration = 7
+            self.delay = self.duration + 36
             self.attack = MELEE_ATTACK
             self.l = character_height
             self.w = self.l / 12 * 5
@@ -64,8 +65,8 @@ class Weapon:
             self.damage = 30
 
         elif self.type == STAFF:
-            self.duration = 11 # 15
-            self.delay = self.duration + 70 # 100
+            self.duration = 11
+            self.delay = self.duration + 70
             self.attack = RANGED_ATTACK
             self.l = character_height * 1.5
             self.w = self.l / 9 * 2
@@ -84,8 +85,8 @@ class Weapon:
             self.damage = 15
 
         elif self.type == HOOK:
-            self.duration = 11 # 15
-            self.delay = self.duration + 7 # 10
+            self.duration = 11
+            self.delay = self.duration + 7
             self.attack = MELEE_ATTACK
             self.l = character_height
             self.w = self.l / 12 * 5
@@ -108,8 +109,8 @@ class Weapon:
             self.damage = 20
 
         elif self.type == GUN:
-            self.duration = 7 # 10
-            self.delay = 7 # 10
+            self.duration = 7
+            self.delay = 7
             self.attack = RANGED_ATTACK
             self.l = character_height / 2.5
             self.w = self.l * 2

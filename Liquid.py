@@ -4,9 +4,11 @@ from math import pi
 import pygame
 
 
+# Class of the Liquid for the locations
 class Liquid(pygame.sprite.Sprite):
     images = dict()
 
+    # Load the images for the Liquid
     @staticmethod
     def load_images():
         frame_amount = 20 # 30
@@ -32,11 +34,8 @@ class Liquid(pygame.sprite.Sprite):
         self.current_frame = 0
         self.rect = self.image.get_rect().move(x, y)
 
+    # Update the state of the Liquid
     def update(self):
         if self.up_free:
             self.current_frame = (self.current_frame + 1) % self.frame_amount
             self.image = self.frames[self.current_frame]
-
-
-
-

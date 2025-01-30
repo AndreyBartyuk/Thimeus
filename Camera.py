@@ -2,12 +2,14 @@ from Player import Player
 import pygame
 
 
+# Class for moving the objects for Player motion
 class Camera:
     def __init__(self, all_sprites):
         self.screen_width, self.screen_height = pygame.display.get_window_size()
         self.all_sprites = all_sprites
         self.target = None
 
+    # Set the target for the Camera
     def set_target(self):
         for group in self.all_sprites:
             if isinstance(group, Player):
@@ -19,6 +21,7 @@ class Camera:
             sprite.rect = sprite.rect.move(self.screen_width // 2 - target_x,
                                            self.screen_height // 2 - target_y)
 
+    # Move objects
     def move(self, x_move, y_move):
         for group in self.all_sprites:
             if group == self.target or group.__class__.__name__ == "Interface":

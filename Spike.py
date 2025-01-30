@@ -2,6 +2,7 @@ from ThimeusConstants import DARK_COLOR, TILE_SIZE, LINE_WIDTH
 import pygame
 
 
+# Class of Spike for the locations
 class Spike(pygame.sprite.Sprite):
     def __init__(self, group, x, y, direction, color):
         super().__init__(group)

@@ -4,9 +4,11 @@ from ThimeusFunctions import load_image
 import pygame
 
 
+# Class of the Projectile for Weapons
 class Projectile(pygame.sprite.Sprite):
     images = dict()
 
+    # Load the images for Projectiles
     @staticmethod
     def load_images():
         sprite_sheet = load_image("sword_projectile.png")
@@ -138,6 +140,7 @@ class Projectile(pygame.sprite.Sprite):
         self.rect = self.rect.move(x - self.rect.w / 2, y - self.rect.h / 2)
         self.mask = pygame.mask.from_surface(self.image)
 
+    # Update the state of the Projectile
     def update(self):
         self.current_frame = (self.current_frame + 1) % self.frame_amount
         self.image = self.frames[self.current_frame]
@@ -160,6 +163,3 @@ class Projectile(pygame.sprite.Sprite):
         elif self.destroyed_by_walls:
             if pygame.sprite.spritecollide(self, self.walls, False, collided=pygame.sprite.collide_mask):
                 self.kill()
-
-
-

@@ -3,6 +3,7 @@ from ThimeusConstants import LINE_WIDTH, DARK_COLOR
 import pygame
 
 
+# Class of the Legs for Player and Enemies
 class Legs(pygame.sprite.Sprite):
     def __init__(self, group, w, h, color):
         super().__init__(group)
@@ -15,6 +16,7 @@ class Legs(pygame.sprite.Sprite):
         self.leg_width = self.w // 4
         self.speed = 0
 
+    # Update the state of the Legs
     def update(self):
         self.angle = (self.angle + self.speed) % 360
         if self.speed == 0 and self.angle != 0:
@@ -27,6 +29,7 @@ class Legs(pygame.sprite.Sprite):
         self.draw_leg(self.angle)
         self.draw_leg(self.angle + 180)
 
+    # Draw one leg
     def draw_leg(self, angle):
         up_points = [(self.w // 2 + self.w // 6 * cos(radians(angle) + 2 * pi) - self.leg_width // 2,
                       self.h // 8 + self.h // 12 * sin(radians(angle) + 2 * pi))]
